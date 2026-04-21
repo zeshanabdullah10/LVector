@@ -63,6 +63,17 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
         />
       )
     }
+    // Fallback: show original image before SVG is available
+    if (inputImage) {
+      return (
+        <img
+          src={inputImage}
+          alt="Original"
+          className="max-w-full max-h-full object-contain"
+          style={{ transform: `scale(${zoom})` }}
+        />
+      )
+    }
     return null
   }
 
@@ -196,18 +207,28 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
                     <rect x="13" y="3" width="8" height="18" rx="1" />
                   </svg>
                 </Button>
-                {inputImage && (
-                  <Button
-                    variant={viewMode === 'original' ? 'secondary' : 'ghost'}
-                    size="icon"
-                    className="h-8 w-8 rounded-md"
-                    onClick={() => setViewMode('original')}
-                    aria-label="Original view"
-                    title="Original image"
-                  >
-                    <EyeOff className="w-4 h-4" />
-                  </Button>
-                )}
+              </div>
+            )}
+            {inputImage && (
+              <div
+                className="flex items-center gap-0.5 rounded-lg shadow-sm p-0.5"
+                style={{
+                  backgroundColor: 'var(--color-surface)',
+                  backdropFilter: 'blur(4px)',
+                  border: '1px solid var(--color-border)',
+                  opacity: 0.95,
+                }}
+              >
+                <Button
+                  variant={viewMode === 'original' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="h-8 w-8 rounded-md"
+                  onClick={() => setViewMode('original')}
+                  aria-label="Original view"
+                  title="Original image"
+                >
+                  <EyeOff className="w-4 h-4" />
+                </Button>
               </div>
             )}
           </div>

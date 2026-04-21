@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { ConvertView } from '@/components/convert/convert-view'
 import { LibraryView } from '@/components/library/library-view'
-import { Header } from '@/components/shared/header'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 export default function Home() {
@@ -11,7 +10,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen">
-      <Header />
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'convert' | 'library')} className="flex-1 flex flex-col">
         <TabsList className="w-full justify-start rounded-none border-b px-4 h-11 bg-background">
           <TabsTrigger value="convert">Convert</TabsTrigger>

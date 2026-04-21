@@ -2,7 +2,6 @@
 'use client'
 
 import { HelpCircle, Moon, Sun, Hexagon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { useTheme } from 'next-themes'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -24,28 +23,32 @@ export function HeaderBar() {
       <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <HelpCircle className="w-4 h-4 text-muted-foreground" />
-            </Button>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-md h-9 w-9 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              aria-label="Help & shortcuts"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </button>
           </TooltipTrigger>
           <TooltipContent>Help & shortcuts</TooltipContent>
         </Tooltip>
 
         <Tooltip>
           <TooltipTrigger>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-md h-9 w-9 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              aria-label="Toggle theme"
             >
               <span suppressHydrationWarning>
                 {theme === 'dark'
-                  ? <Sun className="w-4 h-4 text-muted-foreground" />
-                  : <Moon className="w-4 h-4 text-muted-foreground" />
+                  ? <Sun className="w-4 h-4" />
+                  : <Moon className="w-4 h-4" />
                 }
               </span>
-            </Button>
+            </button>
           </TooltipTrigger>
           <TooltipContent>Toggle theme</TooltipContent>
         </Tooltip>

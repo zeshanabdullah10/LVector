@@ -97,24 +97,20 @@ export function ComparisonSlider({
       aria-valuemax={100}
       aria-valuenow={position}
     >
-      {/* Left (original) */}
+      {/* Left side - original (revealed by clip moving right) */}
       <div
         className="absolute inset-0 overflow-hidden"
         style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
       >
-        <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'var(--color-muted)', opacity: 0.3 }}>
-          {leftContent}
-        </div>
+        {leftContent}
       </div>
 
-      {/* Right (SVG) */}
+      {/* Right side - SVG */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          {rightContent}
-        </div>
+        {rightContent}
       </div>
 
-      {/* Slider line and handle */}
+      {/* Slider line */}
       <div
         className="absolute top-0 bottom-0 z-10"
         style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
@@ -131,42 +127,6 @@ export function ComparisonSlider({
             <div className="w-1 h-4 rounded-full" style={{ backgroundColor: 'var(--color-primary)' }} />
           </div>
         </div>
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2">
-          <span
-            className="text-xs px-2 py-0.5 rounded-full font-medium"
-            style={{
-              backgroundColor: 'var(--color-primary)',
-              color: 'var(--color-primary-foreground)',
-            }}
-          >
-            {position < 50 ? leftLabel : rightLabel}
-          </span>
-        </div>
-      </div>
-
-      <div className="absolute top-3 left-3 z-10">
-        <span
-          className="text-xs px-2 py-1 rounded-full shadow-sm"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            color: 'var(--color-foreground)',
-            opacity: 0.9,
-          }}
-        >
-          {leftLabel}
-        </span>
-      </div>
-      <div className="absolute top-3 right-3 z-10">
-        <span
-          className="text-xs px-2 py-1 rounded-full shadow-sm"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            color: 'var(--color-foreground)',
-            opacity: 0.9,
-          }}
-        >
-          {rightLabel}
-        </span>
       </div>
     </div>
   )

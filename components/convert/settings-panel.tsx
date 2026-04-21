@@ -46,7 +46,7 @@ function SettingRow({
 }) {
   return (
     <div className="flex items-center gap-3 py-1.5">
-      <label className="text-xs font-medium text-muted-foreground w-28 shrink-0" htmlFor={id}>
+      <label className="text-xs font-medium w-28 shrink-0" htmlFor={id} style={{ color: 'var(--color-muted-foreground)' }}>
         {label}
       </label>
       <Slider
@@ -59,7 +59,7 @@ function SettingRow({
         className="flex-1"
         aria-label={label}
       />
-      <span className="text-xs font-mono text-foreground w-10 text-right shrink-0">
+      <span className="text-xs font-mono w-10 text-right shrink-0" style={{ color: 'var(--color-foreground)' }}>
         {format ? format(value) : value}
       </span>
     </div>
@@ -68,30 +68,34 @@ function SettingRow({
 
 export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps) {
   return (
-    <div className="border-t border-border bg-surface px-6 py-4">
+    <div className="border-t border-border px-6 py-4" style={{ backgroundColor: 'var(--color-surface)' }}>
       <Tabs defaultValue="colors" className="w-full">
-        <TabsList className="mb-4 h-9 gap-1 bg-muted/50 p-0.5 rounded-lg w-fit">
+        <TabsList className="mb-4 h-9 gap-1 p-0.5 rounded-lg w-fit" style={{ backgroundColor: 'var(--color-muted)' }}>
           <TabsTrigger
             value="presets"
-            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:shadow-sm"
+            style={{ backgroundColor: 'var(--color-background)' }}
           >
             Presets
           </TabsTrigger>
           <TabsTrigger
             value="colors"
-            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:shadow-sm"
+            style={{ backgroundColor: 'var(--color-background)' }}
           >
             Colors
           </TabsTrigger>
           <TabsTrigger
             value="shape"
-            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:shadow-sm"
+            style={{ backgroundColor: 'var(--color-background)' }}
           >
             Shape
           </TabsTrigger>
           <TabsTrigger
             value="output"
-            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:shadow-sm"
+            style={{ backgroundColor: 'var(--color-background)' }}
           >
             Output
           </TabsTrigger>
@@ -105,13 +109,12 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
                 key={p.value}
                 type="button"
                 onClick={() => onSettingChange('preset', p.value)}
-                className={`
-                  px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150
-                  ${settings.preset === p.value
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                  }
-                `}
+                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150"
+                style={
+                  settings.preset === p.value
+                    ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }
+                    : { backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground)' }
+                }
               >
                 {p.label}
               </button>
@@ -122,81 +125,23 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
         {/* Colors tab */}
         <TabsContent value="colors" className="space-y-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
-            <SettingRow
-              label="Number of colors"
-              id="numberofcolors"
-              min={2} max={64} step={1}
-              value={settings.numberofcolors}
-              onChange={(v) => onSettingChange('numberofcolors', v)}
-            />
-            <SettingRow
-              label="Color sampling"
-              id="colorsampling"
-              min={0} max={2} step={1}
-              value={settings.colorsampling}
-              onChange={(v) => onSettingChange('colorsampling', v)}
-            />
-            <SettingRow
-              label="Color quant cycles"
-              id="colorquantcycles"
-              min={1} max={10} step={1}
-              value={settings.colorquantcycles}
-              onChange={(v) => onSettingChange('colorquantcycles', v)}
-            />
-            <SettingRow
-              label="Min color ratio"
-              id="mincolorratio"
-              min={0} max={1} step={0.05}
-              value={settings.mincolorratio}
-              onChange={(v) => onSettingChange('mincolorratio', v)}
-              format={(v) => v.toFixed(2)}
-            />
+            <SettingRow label="Number of colors" id="numberofcolors" min={2} max={64} step={1} value={settings.numberofcolors} onChange={(v) => onSettingChange('numberofcolors', v)} />
+            <SettingRow label="Color sampling" id="colorsampling" min={0} max={2} step={1} value={settings.colorsampling} onChange={(v) => onSettingChange('colorsampling', v)} />
+            <SettingRow label="Color quant cycles" id="colorquantcycles" min={1} max={10} step={1} value={settings.colorquantcycles} onChange={(v) => onSettingChange('colorquantcycles', v)} />
+            <SettingRow label="Min color ratio" id="mincolorratio" min={0} max={1} step={0.05} value={settings.mincolorratio} onChange={(v) => onSettingChange('mincolorratio', v)} format={(v) => v.toFixed(2)} />
           </div>
         </TabsContent>
 
         {/* Shape tab */}
         <TabsContent value="shape" className="space-y-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
-            <SettingRow
-              label="Line threshold"
-              id="ltres"
-              min={0.1} max={10} step={0.1}
-              value={settings.ltres}
-              onChange={(v) => onSettingChange('ltres', v)}
-              format={(v) => v.toFixed(1)}
-            />
-            <SettingRow
-              label="Curve threshold"
-              id="qtres"
-              min={0.1} max={10} step={0.1}
-              value={settings.qtres}
-              onChange={(v) => onSettingChange('qtres', v)}
-              format={(v) => v.toFixed(1)}
-            />
-            <SettingRow
-              label="Blur radius"
-              id="blurradius"
-              min={0} max={5} step={0.5}
-              value={settings.blurradius}
-              onChange={(v) => onSettingChange('blurradius', v)}
-              format={(v) => v.toFixed(1)}
-            />
-            <SettingRow
-              label="Blur delta"
-              id="blurdelta"
-              min={0} max={256} step={1}
-              value={settings.blurdelta}
-              onChange={(v) => onSettingChange('blurdelta', v)}
-            />
-            <SettingRow
-              label="Path omit"
-              id="pathomit"
-              min={0} max={100} step={1}
-              value={settings.pathomit}
-              onChange={(v) => onSettingChange('pathomit', v)}
-            />
+            <SettingRow label="Line threshold" id="ltres" min={0.1} max={10} step={0.1} value={settings.ltres} onChange={(v) => onSettingChange('ltres', v)} format={(v) => v.toFixed(1)} />
+            <SettingRow label="Curve threshold" id="qtres" min={0.1} max={10} step={0.1} value={settings.qtres} onChange={(v) => onSettingChange('qtres', v)} format={(v) => v.toFixed(1)} />
+            <SettingRow label="Blur radius" id="blurradius" min={0} max={5} step={0.5} value={settings.blurradius} onChange={(v) => onSettingChange('blurradius', v)} format={(v) => v.toFixed(1)} />
+            <SettingRow label="Blur delta" id="blurdelta" min={0} max={256} step={1} value={settings.blurdelta} onChange={(v) => onSettingChange('blurdelta', v)} />
+            <SettingRow label="Path omit" id="pathomit" min={0} max={100} step={1} value={settings.pathomit} onChange={(v) => onSettingChange('pathomit', v)} />
             <div className="flex items-center gap-3 py-1.5">
-              <label className="text-xs font-medium text-muted-foreground w-28 shrink-0" htmlFor="linefilter">
+              <label className="text-xs font-medium w-28 shrink-0" htmlFor="linefilter" style={{ color: 'var(--color-muted-foreground)' }}>
                 Line filter
               </label>
               <Checkbox
@@ -211,39 +156,12 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
         {/* Output tab */}
         <TabsContent value="output" className="space-y-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
-            <SettingRow
-              label="Stroke width"
-              id="strokewidth"
-              min={0} max={10} step={0.5}
-              value={settings.strokewidth}
-              onChange={(v) => onSettingChange('strokewidth', v)}
-              format={(v) => v.toFixed(1)}
-            />
-            <SettingRow
-              label="Round coords"
-              id="roundcoords"
-              min={0} max={10} step={0.5}
-              value={settings.roundcoords}
-              onChange={(v) => onSettingChange('roundcoords', v)}
-              format={(v) => v.toFixed(1)}
-            />
-            <SettingRow
-              label="Scale"
-              id="scale"
-              min={0.1} max={10} step={0.1}
-              value={settings.scale}
-              onChange={(v) => onSettingChange('scale', v)}
-              format={(v) => v.toFixed(1)}
-            />
-            <SettingRow
-              label="Layering"
-              id="layering"
-              min={0} max={2} step={1}
-              value={settings.layering}
-              onChange={(v) => onSettingChange('layering', v)}
-            />
+            <SettingRow label="Stroke width" id="strokewidth" min={0} max={10} step={0.5} value={settings.strokewidth} onChange={(v) => onSettingChange('strokewidth', v)} format={(v) => v.toFixed(1)} />
+            <SettingRow label="Round coords" id="roundcoords" min={0} max={10} step={0.5} value={settings.roundcoords} onChange={(v) => onSettingChange('roundcoords', v)} format={(v) => v.toFixed(1)} />
+            <SettingRow label="Scale" id="scale" min={0.1} max={10} step={0.1} value={settings.scale} onChange={(v) => onSettingChange('scale', v)} format={(v) => v.toFixed(1)} />
+            <SettingRow label="Layering" id="layering" min={0} max={2} step={1} value={settings.layering} onChange={(v) => onSettingChange('layering', v)} />
             <div className="flex items-center gap-3 py-1.5">
-              <label className="text-xs font-medium text-muted-foreground w-28 shrink-0" htmlFor="viewbox">
+              <label className="text-xs font-medium w-28 shrink-0" htmlFor="viewbox" style={{ color: 'var(--color-muted-foreground)' }}>
                 Viewbox
               </label>
               <Checkbox

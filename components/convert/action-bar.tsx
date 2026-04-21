@@ -30,7 +30,6 @@ const BUTTON_CONFIG: Record<ActionState, {
     label: 'Convert to SVG',
     icon: <RefreshCw className="w-4 h-4" />,
     variant: 'default',
-    className: 'animate-subtle-shimmer',
   },
   converting: {
     label: 'Converting...',

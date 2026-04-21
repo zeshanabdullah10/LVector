@@ -2,7 +2,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ZoomIn, ZoomOut, Maximize2, Eye, EyeOff, Upload } from 'lucide-react'
+import { ZoomIn, ZoomOut, Maximize2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ComparisonSlider } from './comparison-slider'
 import { cn } from '@/lib/utils'
@@ -10,74 +10,15 @@ import { cn } from '@/lib/utils'
 interface PreviewCanvasProps {
   inputImage: string | null
   svgOutput: string | null
+  isConverting?: boolean
   onUploadClick: () => void
   error?: string | null
 }
 
-type ViewMode = 'svg' | 'split' | 'original'
-
-export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: PreviewCanvasProps) {
+export function PreviewCanvas({ inputImage, svgOutput, isConverting, onUploadClick, error }: PreviewCanvasProps) {
   const [zoom, setZoom] = useState(1)
-  const [viewMode, setViewMode] = useState<ViewMode>('svg')
 
   const hasContent = inputImage || svgOutput
-
-  const renderPreviewContent = () => {
-    // Show original when user explicitly selects it
-    if (viewMode === 'original' && inputImage) {
-      return (
-        <img
-          src={inputImage}
-          alt="Original"
-          className="max-w-full max-h-full object-contain"
-          style={{ transform: `scale(${zoom})` }}
-        />
-      )
-    }
-    // Show SVG when available
-    if (svgOutput) {
-      if (viewMode === 'split' && inputImage) {
-        return (
-          <ComparisonSlider
-            leftContent={
-              <img
-                src={inputImage}
-                alt="Original"
-                className="max-w-full max-h-full object-contain"
-                style={{ transform: `scale(${zoom})` }}
-              />
-            }
-            rightContent={
-              <div
-                className="max-w-full max-h-full"
-                style={{ transform: `scale(${zoom})` }}
-                dangerouslySetInnerHTML={{ __html: svgOutput }}
-              />
-            }
-          />
-        )
-      }
-      return (
-        <div
-          className="max-w-full max-h-full"
-          style={{ transform: `scale(${zoom})` }}
-          dangerouslySetInnerHTML={{ __html: svgOutput }}
-        />
-      )
-    }
-    // Fallback: show original image before SVG is available
-    if (inputImage) {
-      return (
-        <img
-          src={inputImage}
-          alt="Original"
-          className="max-w-full max-h-full object-contain"
-          style={{ transform: `scale(${zoom})` }}
-        />
-      )
-    }
-    return null
-  }
 
   return (
     <div
@@ -107,7 +48,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
           </div>
         </button>
       ) : (
-        /* Preview content */
+        /* Preview content - always split view when both exist */
         <div
           className={cn(
             'relative w-full max-w-2xl aspect-video rounded-xl overflow-hidden',
@@ -132,11 +73,50 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
               {error}
             </div>
           )}
-          {renderPreviewContent()}
 
-          {/* Floating controls */}
+          {isConverting && (
+            <div
+              className="absolute inset-0 z-30 flex items-center justify-center"
+              style={{ backgroundColor: 'var(--color-background)', opacity: 0.8 }}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 rounded-full border-2 border-t-primary animate-spin" />
+                <span className="text-xs" style={{ color: 'var(--color-muted-foreground)' }}>Converting...</span>
+              </div>
+            </div>
+          )}
+
+          {inputImage && svgOutput && (
+            <ComparisonSlider
+              leftContent={
+                <img
+                  src={inputImage}
+                  alt="Original"
+                  className="max-w-full max-h-full object-contain"
+                  style={{ transform: `scale(${zoom})` }}
+                />
+              }
+              rightContent={
+                <div
+                  className="max-w-full max-h-full"
+                  style={{ transform: `scale(${zoom})` }}
+                  dangerouslySetInnerHTML={{ __html: svgOutput }}
+                />
+              }
+            />
+          )}
+
+          {inputImage && !svgOutput && !isConverting && (
+            <img
+              src={inputImage}
+              alt="Original"
+              className="max-w-full max-h-full object-contain"
+              style={{ transform: `scale(${zoom})` }}
+            />
+          )}
+
+          {/* Floating zoom controls */}
           <div className="absolute top-3 right-3 flex items-center gap-1.5">
-            {/* Zoom controls */}
             <div
               className="flex items-center gap-0.5 rounded-lg shadow-sm p-0.5"
               style={{
@@ -174,65 +154,6 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
                 <ZoomIn className="w-4 h-4" />
               </Button>
             </div>
-
-            {/* View toggle */}
-            {svgOutput && (
-              <div
-                className="flex items-center gap-0.5 rounded-lg shadow-sm p-0.5"
-                style={{
-                  backgroundColor: 'var(--color-surface)',
-                  backdropFilter: 'blur(4px)',
-                  border: '1px solid var(--color-border)',
-                  opacity: 0.95,
-                }}
-              >
-                <Button
-                  variant={viewMode === 'svg' ? 'secondary' : 'ghost'}
-                  size="icon"
-                  className="h-8 w-8 rounded-md"
-                  onClick={() => setViewMode('svg')}
-                  aria-label="SVG view"
-                  title="SVG output"
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'split' ? 'secondary' : 'ghost'}
-                  size="icon"
-                  className="h-8 w-8 rounded-md"
-                  onClick={() => setViewMode('split')}
-                  aria-label="Split view"
-                  title="Compare before/after"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="8" height="18" rx="1" />
-                    <rect x="13" y="3" width="8" height="18" rx="1" />
-                  </svg>
-                </Button>
-              </div>
-            )}
-            {inputImage && (
-              <div
-                className="flex items-center gap-0.5 rounded-lg shadow-sm p-0.5"
-                style={{
-                  backgroundColor: 'var(--color-surface)',
-                  backdropFilter: 'blur(4px)',
-                  border: '1px solid var(--color-border)',
-                  opacity: 0.95,
-                }}
-              >
-                <Button
-                  variant={viewMode === 'original' ? 'secondary' : 'ghost'}
-                  size="icon"
-                  className="h-8 w-8 rounded-md"
-                  onClick={() => setViewMode('original')}
-                  aria-label="Original view"
-                  title="Original image"
-                >
-                  <EyeOff className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       )}

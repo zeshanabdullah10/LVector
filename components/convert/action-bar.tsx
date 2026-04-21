@@ -1,16 +1,15 @@
 // components/convert/action-bar.tsx
 'use client'
 
-import { Upload, RefreshCw, Download, Loader2 } from 'lucide-react'
+import { Upload, Download, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-type ActionState = 'idle' | 'upload' | 'converting' | 'ready' | 'done'
+type ActionState = 'idle' | 'converting' | 'ready'
 
 interface ActionBarProps {
   actionState: ActionState
   onUpload: () => void
-  onConvert: () => void
   onExportEMF: () => void
   onReset: () => void
 }
@@ -26,11 +25,6 @@ const BUTTON_CONFIG: Record<ActionState, {
     icon: <Upload className="w-4 h-4" />,
     variant: 'outline',
   },
-  upload: {
-    label: 'Convert to SVG',
-    icon: <RefreshCw className="w-4 h-4" />,
-    variant: 'default',
-  },
   converting: {
     label: 'Converting...',
     icon: <Loader2 className="w-4 h-4 animate-spin" />,
@@ -43,23 +37,16 @@ const BUTTON_CONFIG: Record<ActionState, {
     variant: 'default',
     className: 'bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700',
   },
-  done: {
-    label: 'Download Another',
-    icon: <RefreshCw className="w-4 h-4" />,
-    variant: 'outline',
-  },
 }
 
-export function ActionBar({ actionState, onUpload, onConvert, onExportEMF, onReset }: ActionBarProps) {
+export function ActionBar({ actionState, onUpload, onExportEMF, onReset }: ActionBarProps) {
   const config = BUTTON_CONFIG[actionState]
 
   const handleClick = () => {
     switch (actionState) {
       case 'idle': onUpload(); break
-      case 'upload': onConvert(); break
       case 'converting': break
       case 'ready': onExportEMF(); break
-      case 'done': onReset(); break
     }
   }
 
@@ -67,7 +54,7 @@ export function ActionBar({ actionState, onUpload, onConvert, onExportEMF, onRes
     <div className="h-20 flex items-center justify-center px-6">
       <Button
         onClick={handleClick}
-        variant={config.variant}
+        variant={actionState === 'idle' ? 'outline' : config.variant}
         size="lg"
         disabled={actionState === 'converting'}
         className={cn(

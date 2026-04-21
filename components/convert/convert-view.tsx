@@ -1,7 +1,7 @@
 // components/convert/convert-view.tsx
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { HeaderBar } from './header-bar'
 import { PreviewCanvas } from './preview-canvas'
 import { SettingsPanel } from './settings-panel'
@@ -9,7 +9,7 @@ import { ActionBar } from './action-bar'
 import { StatsBar } from './stats-bar'
 import { useSettings } from '@/hooks/use-settings'
 
-type ActionState = 'idle' | 'upload' | 'converting' | 'ready' | 'done'
+type ActionState = 'idle' | 'converting' | 'ready'
 
 export function ConvertView() {
   const [inputImage, setInputImage] = useState<string | null>(null)
@@ -18,8 +18,8 @@ export function ConvertView() {
   const [isConverting, setIsConverting] = useState(false)
   const { settings, updateSetting } = useSettings()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Compute path count from SVG (rough estimate from path elements)
   const svgElementCount = svgOutput
     ? (svgOutput.match(/<(path|polygon|rect|circle|ellipse|line)/g) || []).length
     : undefined
@@ -30,23 +30,21 @@ export function ConvertView() {
   const getActionState = (): ActionState => {
     if (isConverting) return 'converting'
     if (!inputImage) return 'idle'
-    if (!svgOutput) return 'upload'
+    if (!svgOutput) return 'idle'
     return 'ready'
   }
 
-  const handleFileSelected = useCallback((dataUrl: string) => {
-    setInputImage(dataUrl)
-    setSvgOutput(null)
-    setError(null)
-  }, [])
-
-  const handleConvert = useCallback(async () => {
+  const convert = useCallback(async () => {
     if (!inputImage) return
 
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+
     setIsConverting(true)
+    setError(null)
 
     try {
-      setError(null)
       const base64 = inputImage.split(',')[1]
       const response = await fetch('/api/convert', {
         method: 'POST',
@@ -68,12 +66,37 @@ export function ConvertView() {
     }
   }, [inputImage, settings])
 
+  // Auto-convert when image is uploaded
+  const handleFileSelected = useCallback((dataUrl: string) => {
+    setInputImage(dataUrl)
+    setSvgOutput(null)
+    setError(null)
+  }, [])
+
+  // Auto-reconvert when settings change (debounced)
+  useEffect(() => {
+    if (!inputImage) return
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+
+    debounceRef.current = setTimeout(() => {
+      convert()
+    }, 500)
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+    }
+  }, [inputImage, settings, convert])
+
   const handleExportEMF = useCallback(() => {
     if (!svgOutput) return
     import('@/lib/conversion/svg-to-emf').then(({ exportSvgAsEmf }) => {
       exportSvgAsEmf(svgOutput, 'lvector-export')
     })
-    // After EMF export, reset to idle so user can upload another
     setSvgOutput(null)
     setInputImage(null)
     setError(null)
@@ -94,7 +117,6 @@ export function ConvertView() {
     <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--color-background)' }}>
       <HeaderBar />
 
-      {/* Hidden file input for upload */}
       <input
         ref={fileInputRef}
         type="file"
@@ -107,23 +129,21 @@ export function ConvertView() {
             reader.onload = (ev) => handleFileSelected(ev.target?.result as string)
             reader.readAsDataURL(file)
           }
-          // Reset so same file can be re-selected
           e.target.value = ''
         }}
       />
 
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        {/* Preview Canvas */}
         <div className="shrink-0">
           <PreviewCanvas
             inputImage={inputImage}
             svgOutput={svgOutput}
+            isConverting={isConverting}
             error={error}
             onUploadClick={handleUploadClick}
           />
         </div>
 
-        {/* Settings Panel */}
         <div className="shrink-0 max-h-[35vh] overflow-y-auto">
           <SettingsPanel
             settings={settings}
@@ -131,18 +151,15 @@ export function ConvertView() {
           />
         </div>
 
-        {/* Action Bar */}
         <div className="shrink-0">
           <ActionBar
             actionState={getActionState()}
             onUpload={handleUploadClick}
-            onConvert={handleConvert}
             onExportEMF={handleExportEMF}
             onReset={handleReset}
           />
         </div>
 
-        {/* Stats Bar */}
         <div className="shrink-0">
           <StatsBar
             pathCount={svgElementCount}

@@ -1,0 +1,239 @@
+// components/convert/settings-panel.tsx
+'use client'
+
+import { Slider } from '@/components/ui/slider'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { ConversionSettings } from '@/lib/conversion/types'
+
+interface SettingsPanelProps {
+  settings: ConversionSettings
+  onSettingChange: <K extends keyof ConversionSettings>(
+    key: K,
+    value: ConversionSettings[K]
+  ) => void
+}
+
+const PRESETS = [
+  { value: 'default', label: 'Default' },
+  { value: 'posterized', label: 'Posterized' },
+  { value: 'detailed', label: 'Detailed' },
+  { value: 'smooth', label: 'Smooth' },
+  { value: 'sharp', label: 'Sharp' },
+  { value: 'cinematic', label: 'Cinematic' },
+  { value: 'artistic', label: 'Artistic' },
+  { value: 'custom', label: 'Custom' },
+]
+
+function SettingRow({
+  label,
+  id,
+  min,
+  max,
+  step,
+  value,
+  onChange,
+  format,
+}: {
+  label: string
+  id: string
+  min: number
+  max: number
+  step: number
+  value: number
+  onChange: (v: number) => void
+  format?: (v: number) => string
+}) {
+  return (
+    <div className="flex items-center gap-3 py-1.5">
+      <label className="text-xs font-medium text-muted-foreground w-28 shrink-0" htmlFor={id}>
+        {label}
+      </label>
+      <Slider
+        id={id}
+        min={min}
+        max={max}
+        step={step}
+        value={[value]}
+        onValueChange={(v) => onChange(Array.isArray(v) ? v[0] : v)}
+        className="flex-1"
+        aria-label={label}
+      />
+      <span className="text-xs font-mono text-foreground w-10 text-right shrink-0">
+        {format ? format(value) : value}
+      </span>
+    </div>
+  )
+}
+
+export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps) {
+  return (
+    <div className="border-t border-border bg-surface px-6 py-4">
+      <Tabs defaultValue="colors" className="w-full">
+        <TabsList className="mb-4 h-9 gap-1 bg-muted/50 p-0.5 rounded-lg w-fit">
+          <TabsTrigger
+            value="presets"
+            className="text-xs px-4 py-1.5 h-8 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            Presets
+          </TabsTrigger>
+          <TabsTrigger
+            value="colors"
+            className="text-xs px-4 py-1.5 h-8 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            Colors
+          </TabsTrigger>
+          <TabsTrigger
+            value="shape"
+            className="text-xs px-4 py-1.5 h-8 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            Shape
+          </TabsTrigger>
+          <TabsTrigger
+            value="output"
+            className="text-xs px-4 py-1.5 h-8 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            Output
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Presets tab */}
+        <TabsContent value="presets" className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {PRESETS.map(p => (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => onSettingChange('preset', p.value)}
+                className={`
+                  px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150
+                  ${settings.preset === p.value
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                  }
+                `}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Colors tab */}
+        <TabsContent value="colors" className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
+            <SettingRow
+              label="Number of colors"
+              id="numberofcolors"
+              min={2} max={64} step={1}
+              value={settings.numberofcolors}
+              onChange={(v) => onSettingChange('numberofcolors', v)}
+            />
+            <SettingRow
+              label="Color sampling"
+              id="colorsampling"
+              min={0} max={2} step={1}
+              value={settings.colorsampling}
+              onChange={(v) => onSettingChange('colorsampling', v)}
+            />
+            <SettingRow
+              label="Color quant cycles"
+              id="colorquantcycles"
+              min={1} max={10} step={1}
+              value={settings.colorquantcycles}
+              onChange={(v) => onSettingChange('colorquantcycles', v)}
+            />
+            <SettingRow
+              label="Min color ratio"
+              id="mincolorratio"
+              min={0} max={1} step={0.05}
+              value={settings.mincolorratio}
+              onChange={(v) => onSettingChange('mincolorratio', v)}
+              format={(v) => v.toFixed(2)}
+            />
+          </div>
+        </TabsContent>
+
+        {/* Shape tab */}
+        <TabsContent value="shape" className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
+            <SettingRow
+              label="Line threshold"
+              id="ltres"
+              min={0.1} max={10} step={0.1}
+              value={settings.ltres}
+              onChange={(v) => onSettingChange('ltres', v)}
+              format={(v) => v.toFixed(1)}
+            />
+            <SettingRow
+              label="Curve threshold"
+              id="qtres"
+              min={0.1} max={10} step={0.1}
+              value={settings.qtres}
+              onChange={(v) => onSettingChange('qtres', v)}
+              format={(v) => v.toFixed(1)}
+            />
+            <SettingRow
+              label="Blur radius"
+              id="blurradius"
+              min={0} max={5} step={0.5}
+              value={settings.blurradius}
+              onChange={(v) => onSettingChange('blurradius', v)}
+              format={(v) => v.toFixed(1)}
+            />
+            <SettingRow
+              label="Blur delta"
+              id="blurdelta"
+              min={0} max={256} step={1}
+              value={settings.blurdelta}
+              onChange={(v) => onSettingChange('blurdelta', v)}
+            />
+            <SettingRow
+              label="Path omit"
+              id="pathomit"
+              min={0} max={100} step={1}
+              value={settings.pathomit}
+              onChange={(v) => onSettingChange('pathomit', v)}
+            />
+          </div>
+        </TabsContent>
+
+        {/* Output tab */}
+        <TabsContent value="output" className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
+            <SettingRow
+              label="Stroke width"
+              id="strokewidth"
+              min={0} max={10} step={0.5}
+              value={settings.strokewidth}
+              onChange={(v) => onSettingChange('strokewidth', v)}
+              format={(v) => v.toFixed(1)}
+            />
+            <SettingRow
+              label="Round coords"
+              id="roundcoords"
+              min={0} max={10} step={0.5}
+              value={settings.roundcoords}
+              onChange={(v) => onSettingChange('roundcoords', v)}
+              format={(v) => v.toFixed(1)}
+            />
+            <SettingRow
+              label="Scale"
+              id="scale"
+              min={0.1} max={10} step={0.1}
+              value={settings.scale}
+              onChange={(v) => onSettingChange('scale', v)}
+              format={(v) => v.toFixed(1)}
+            />
+            <SettingRow
+              label="Layering"
+              id="layering"
+              min={0} max={2} step={1}
+              value={settings.layering}
+              onChange={(v) => onSettingChange('layering', v)}
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}

@@ -1,7 +1,7 @@
 // components/convert/comparison-slider.tsx
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback } from 'react'
 
 interface ComparisonSliderProps {
   leftContent: React.ReactNode   // Original image
@@ -56,6 +56,7 @@ export function ComparisonSlider({
       ref={containerRef}
       className="relative w-full h-full select-none cursor-ew-resize overflow-hidden rounded-lg"
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchMove}
       onTouchMove={handleTouchMove}
     >
       {/* Left (original) — clipped by position */}
@@ -81,11 +82,11 @@ export function ComparisonSlider({
         style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
       >
         {/* Line */}
-        <div className="absolute top-0 bottom-0 w-0.5 bg-primary/60" />
+        <div className="absolute top-0 bottom-0 w-0.5 bg-primary" />
 
         {/* Handle */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="w-8 h-8 rounded-full bg-white border-2 border-primary shadow-lg flex items-center justify-center">
+          <div className="w-6 h-6 rounded-full bg-white border-2 border-primary shadow-lg flex items-center justify-center">
             <div className="w-1 h-4 rounded-full bg-primary" />
           </div>
         </div>

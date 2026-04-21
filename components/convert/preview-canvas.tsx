@@ -21,12 +21,56 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
 
   const hasContent = inputImage || svgOutput
 
+  const renderPreviewContent = () => {
+    if (viewMode === 'split' && inputImage && svgOutput) {
+      return (
+        <ComparisonSlider
+          leftContent={
+            <img
+              src={inputImage}
+              alt="Original"
+              className="max-w-full max-h-full object-contain"
+              style={{ transform: `scale(${zoom})` }}
+            />
+          }
+          rightContent={
+            <div
+              className="max-w-full max-h-full"
+              style={{ transform: `scale(${zoom})` }}
+              dangerouslySetInnerHTML={{ __html: svgOutput }}
+            />
+          }
+        />
+      )
+    }
+    if (viewMode === 'original' && inputImage) {
+      return (
+        <img
+          src={inputImage}
+          alt="Original"
+          className="max-w-full max-h-full object-contain"
+          style={{ transform: `scale(${zoom})` }}
+        />
+      )
+    }
+    if (svgOutput) {
+      return (
+        <div
+          className="max-w-full max-h-full"
+          style={{ transform: `scale(${zoom})` }}
+          dangerouslySetInnerHTML={{ __html: svgOutput }}
+        />
+      )
+    }
+    return null
+  }
+
   return (
     <div className="relative flex items-center justify-center bg-muted/20 px-6 py-8 min-h-[300px]">
-      {/* Canvas frame */}
+      {/* Empty state */}
       {!hasContent ? (
-        /* Empty state */
         <button
+          type="button"
           onClick={onUploadClick}
           className={cn(
             'w-full max-w-2xl aspect-video rounded-xl border-2 border-dashed',
@@ -60,38 +104,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
             backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
           }}
         >
-          {viewMode === 'split' && inputImage && svgOutput ? (
-            <ComparisonSlider
-              leftContent={
-                <img
-                  src={inputImage}
-                  alt="Original"
-                  className="max-w-full max-h-full object-contain"
-                  style={{ transform: `scale(${zoom})` }}
-                />
-              }
-              rightContent={
-                <div
-                  className="max-w-full max-h-full"
-                  style={{ transform: `scale(${zoom})` }}
-                  dangerouslySetInnerHTML={{ __html: svgOutput }}
-                />
-              }
-            />
-          ) : viewMode === 'original' && inputImage ? (
-            <img
-              src={inputImage}
-              alt="Original"
-              className="max-w-full max-h-full object-contain"
-              style={{ transform: `scale(${zoom})` }}
-            />
-          ) : svgOutput ? (
-            <div
-              className="max-w-full max-h-full"
-              style={{ transform: `scale(${zoom})` }}
-              dangerouslySetInnerHTML={{ __html: svgOutput }}
-            />
-          ) : null}
+          {renderPreviewContent()}
 
           {/* Floating controls */}
           <div className="absolute top-3 right-3 flex items-center gap-1.5">
@@ -102,6 +115,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
                 size="icon"
                 className="h-8 w-8 rounded-md"
                 onClick={() => setZoom(z => Math.max(0.5, z - 0.25))}
+                aria-label="Zoom out"
               >
                 <ZoomOut className="w-4 h-4" />
               </Button>
@@ -110,6 +124,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
                 size="icon"
                 className="h-8 w-8 rounded-md"
                 onClick={() => setZoom(1)}
+                aria-label="Reset zoom"
               >
                 <Maximize2 className="w-4 h-4" />
               </Button>
@@ -118,6 +133,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
                 size="icon"
                 className="h-8 w-8 rounded-md"
                 onClick={() => setZoom(z => Math.min(3, z + 0.25))}
+                aria-label="Zoom in"
               >
                 <ZoomIn className="w-4 h-4" />
               </Button>
@@ -131,6 +147,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
                   size="icon"
                   className="h-8 w-8 rounded-md"
                   onClick={() => setViewMode('svg')}
+                  aria-label="SVG view"
                   title="SVG output"
                 >
                   <Eye className="w-4 h-4" />
@@ -140,6 +157,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
                   size="icon"
                   className="h-8 w-8 rounded-md"
                   onClick={() => setViewMode('split')}
+                  aria-label="Split view"
                   title="Compare before/after"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -153,6 +171,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
                     size="icon"
                     className="h-8 w-8 rounded-md"
                     onClick={() => setViewMode('original')}
+                    aria-label="Original view"
                     title="Original image"
                   >
                     <EyeOff className="w-4 h-4" />

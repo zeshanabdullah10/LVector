@@ -1,3 +1,4 @@
+// components/convert/header-bar.tsx
 'use client'
 
 import { HelpCircle, Moon, Sun, Hexagon } from 'lucide-react'
@@ -22,7 +23,7 @@ export function HeaderBar() {
       {/* Right controls */}
       <div className="flex items-center gap-1">
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <HelpCircle className="w-4 h-4 text-muted-foreground" />
             </Button>
@@ -31,17 +32,19 @@ export function HeaderBar() {
         </Tooltip>
 
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <Button
               variant="ghost"
               size="icon"
               className="h-9 w-9"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
-              {theme === 'dark'
-                ? <Sun className="w-4 h-4 text-muted-foreground" />
-                : <Moon className="w-4 h-4 text-muted-foreground" />
-              }
+              <span suppressHydrationWarning>
+                {theme === 'dark'
+                  ? <Sun className="w-4 h-4 text-muted-foreground" />
+                  : <Moon className="w-4 h-4 text-muted-foreground" />
+                }
+              </span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>Toggle theme</TooltipContent>

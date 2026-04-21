@@ -8,7 +8,6 @@ import { SettingsPanel } from './settings-panel'
 import { ActionBar } from './action-bar'
 import { StatsBar } from './stats-bar'
 import { useSettings } from '@/hooks/use-settings'
-import type { ConversionSettings } from '@/lib/conversion/types'
 
 type ActionState = 'idle' | 'upload' | 'converting' | 'ready' | 'done'
 
@@ -16,11 +15,12 @@ export function ConvertView() {
   const [inputImage, setInputImage] = useState<string | null>(null)
   const [svgOutput, setSvgOutput] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isConverting, setIsConverting] = useState(false)
   const { settings, updateSetting } = useSettings()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Compute path count from SVG (rough estimate from path elements)
-  const pathCount = svgOutput
+  const svgElementCount = svgOutput
     ? (svgOutput.match(/<(path|polygon|rect|circle|ellipse|line)/g) || []).length
     : undefined
   const fileSize = svgOutput
@@ -28,8 +28,8 @@ export function ConvertView() {
     : undefined
 
   const getActionState = (): ActionState => {
+    if (isConverting) return 'converting'
     if (!inputImage) return 'idle'
-    if (!svgOutput && error) return 'upload'
     if (!svgOutput) return 'upload'
     return 'ready'
   }
@@ -42,6 +42,8 @@ export function ConvertView() {
 
   const handleConvert = useCallback(async () => {
     if (!inputImage) return
+
+    setIsConverting(true)
 
     try {
       setError(null)
@@ -61,6 +63,8 @@ export function ConvertView() {
       setSvgOutput(data.svg)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Conversion failed')
+    } finally {
+      setIsConverting(false)
     }
   }, [inputImage, settings])
 
@@ -69,13 +73,17 @@ export function ConvertView() {
     import('@/lib/conversion/svg-to-emf').then(({ exportSvgAsEmf }) => {
       exportSvgAsEmf(svgOutput, 'lvector-export')
     })
+    // After EMF export, reset to idle so user can upload another
+    setSvgOutput(null)
+    setInputImage(null)
+    setError(null)
   }, [svgOutput])
 
   const handleReset = useCallback(() => {
     setInputImage(null)
     setSvgOutput(null)
     setError(null)
-    fileInputRef.current?.click()
+    setIsConverting(false)
   }, [])
 
   const handleUploadClick = useCallback(() => {
@@ -136,7 +144,7 @@ export function ConvertView() {
         {/* Stats Bar */}
         <div className="shrink-0">
           <StatsBar
-            pathCount={pathCount}
+            pathCount={svgElementCount}
             fileSize={fileSize}
             colorCount={settings.numberofcolors}
           />

@@ -23,27 +23,7 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
   const hasContent = inputImage || svgOutput
 
   const renderPreviewContent = () => {
-    if (viewMode === 'split' && inputImage && svgOutput) {
-      return (
-        <ComparisonSlider
-          leftContent={
-            <img
-              src={inputImage}
-              alt="Original"
-              className="max-w-full max-h-full object-contain"
-              style={{ transform: `scale(${zoom})` }}
-            />
-          }
-          rightContent={
-            <div
-              className="max-w-full max-h-full"
-              style={{ transform: `scale(${zoom})` }}
-              dangerouslySetInnerHTML={{ __html: svgOutput }}
-            />
-          }
-        />
-      )
-    }
+    // Show original when user explicitly selects it
     if (viewMode === 'original' && inputImage) {
       return (
         <img
@@ -54,7 +34,29 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
         />
       )
     }
+    // Show SVG when available
     if (svgOutput) {
+      if (viewMode === 'split' && inputImage) {
+        return (
+          <ComparisonSlider
+            leftContent={
+              <img
+                src={inputImage}
+                alt="Original"
+                className="max-w-full max-h-full object-contain"
+                style={{ transform: `scale(${zoom})` }}
+              />
+            }
+            rightContent={
+              <div
+                className="max-w-full max-h-full"
+                style={{ transform: `scale(${zoom})` }}
+                dangerouslySetInnerHTML={{ __html: svgOutput }}
+              />
+            }
+          />
+        )
+      }
       return (
         <div
           className="max-w-full max-h-full"

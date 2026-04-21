@@ -2,6 +2,7 @@
 'use client'
 
 import { Slider } from '@/components/ui/slider'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { ConversionSettings } from '@/lib/conversion/types'
 
@@ -72,25 +73,25 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
         <TabsList className="mb-4 h-9 gap-1 bg-muted/50 p-0.5 rounded-lg w-fit">
           <TabsTrigger
             value="presets"
-            className="text-xs px-4 py-1.5 h-8 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
             Presets
           </TabsTrigger>
           <TabsTrigger
             value="colors"
-            className="text-xs px-4 py-1.5 h-8 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
             Colors
           </TabsTrigger>
           <TabsTrigger
             value="shape"
-            className="text-xs px-4 py-1.5 h-8 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
             Shape
           </TabsTrigger>
           <TabsTrigger
             value="output"
-            className="text-xs px-4 py-1.5 h-8 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
             Output
           </TabsTrigger>
@@ -194,6 +195,16 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
               value={settings.pathomit}
               onChange={(v) => onSettingChange('pathomit', v)}
             />
+            <div className="flex items-center gap-3 py-1.5">
+              <label className="text-xs font-medium text-muted-foreground w-28 shrink-0" htmlFor="linefilter">
+                Line filter
+              </label>
+              <Checkbox
+                id="linefilter"
+                checked={settings.linefilter}
+                onCheckedChange={(v) => onSettingChange('linefilter', Boolean(v))}
+              />
+            </div>
           </div>
         </TabsContent>
 
@@ -231,6 +242,16 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
               value={settings.layering}
               onChange={(v) => onSettingChange('layering', v)}
             />
+            <div className="flex items-center gap-3 py-1.5">
+              <label className="text-xs font-medium text-muted-foreground w-28 shrink-0" htmlFor="viewbox">
+                Viewbox
+              </label>
+              <Checkbox
+                id="viewbox"
+                checked={settings.viewbox}
+                onCheckedChange={(v) => onSettingChange('viewbox', Boolean(v))}
+              />
+            </div>
           </div>
         </TabsContent>
       </Tabs>

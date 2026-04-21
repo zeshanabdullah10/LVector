@@ -110,9 +110,10 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
             <div
               className="absolute top-3 left-3 right-3 z-20 text-xs px-3 py-2 rounded-lg"
               style={{
-                backgroundColor: 'color-mix(in oklch, var(--color-destructive) 10%, transparent)',
-                border: '1px solid color-mix(in oklch, var(--color-destructive) 30%, transparent)',
-                color: 'var(--color-destructive)',
+                backgroundColor: 'var(--color-destructive)',
+                color: 'var(--color-destructive-foreground)',
+                opacity: 0.15,
+                border: '1px solid var(--color-destructive)',
               }}
             >
               {error}
@@ -126,9 +127,10 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
             <div
               className="flex items-center gap-0.5 rounded-lg shadow-sm p-0.5"
               style={{
-                backgroundColor: 'color-mix(in oklch, var(--color-background) 90%, transparent)',
+                backgroundColor: 'var(--color-surface)',
                 backdropFilter: 'blur(4px)',
                 border: '1px solid var(--color-border)',
+                opacity: 0.95,
               }}
             >
               <Button
@@ -165,9 +167,10 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
               <div
                 className="flex items-center gap-0.5 rounded-lg shadow-sm p-0.5"
                 style={{
-                  backgroundColor: 'color-mix(in oklch, var(--color-background) 90%, transparent)',
+                  backgroundColor: 'var(--color-surface)',
                   backdropFilter: 'blur(4px)',
                   border: '1px solid var(--color-border)',
+                  opacity: 0.95,
                 }}
               >
                 <Button

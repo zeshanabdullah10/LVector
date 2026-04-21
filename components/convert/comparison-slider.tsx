@@ -65,12 +65,37 @@ export function ComparisonSlider({
     window.addEventListener('touchend', handleTouchEnd)
   }, [updatePosition])
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const step = e.shiftKey ? 10 : 2
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      setPosition(p => Math.max(0, p - step))
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      setPosition(p => Math.min(100, p + step))
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      setPosition(0)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      setPosition(100)
+    }
+  }, [])
+
   return (
     <div
       ref={containerRef}
       className="relative w-full h-full select-none cursor-ew-resize overflow-hidden rounded-lg"
+      style={{ touchAction: 'none' }}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="slider"
+      aria-label="Drag to compare original and SVG"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={position}
     >
       {/* Left (original) */}
       <div
@@ -123,9 +148,9 @@ export function ComparisonSlider({
         <span
           className="text-xs px-2 py-1 rounded-full shadow-sm"
           style={{
-            backgroundColor: 'color-mix(in oklch, var(--color-background) 80%, transparent)',
-            backdropFilter: 'blur(4px)',
+            backgroundColor: 'var(--color-surface)',
             color: 'var(--color-foreground)',
+            opacity: 0.9,
           }}
         >
           {leftLabel}
@@ -135,9 +160,9 @@ export function ComparisonSlider({
         <span
           className="text-xs px-2 py-1 rounded-full shadow-sm"
           style={{
-            backgroundColor: 'color-mix(in oklch, var(--color-background) 80%, transparent)',
-            backdropFilter: 'blur(4px)',
+            backgroundColor: 'var(--color-surface)',
             color: 'var(--color-foreground)',
+            opacity: 0.9,
           }}
         >
           {rightLabel}

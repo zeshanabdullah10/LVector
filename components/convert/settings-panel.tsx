@@ -16,12 +16,20 @@ interface SettingsPanelProps {
 
 const PRESETS = [
   { value: 'default', label: 'Default' },
-  { value: 'posterized', label: 'Posterized' },
-  { value: 'detailed', label: 'Detailed' },
-  { value: 'smooth', label: 'Smooth' },
+  { value: 'posterized1', label: 'Posterized 1' },
+  { value: 'posterized2', label: 'Posterized 2' },
+  { value: 'curvy', label: 'Curvy' },
   { value: 'sharp', label: 'Sharp' },
-  { value: 'cinematic', label: 'Cinematic' },
-  { value: 'artistic', label: 'Artistic' },
+  { value: 'detailed', label: 'Detailed' },
+  { value: 'smoothed', label: 'Smoothed' },
+  { value: 'grayscale', label: 'Grayscale' },
+  { value: 'artistic1', label: 'Artistic 1' },
+  { value: 'artistic2', label: 'Artistic 2' },
+  { value: 'artistic3', label: 'Artistic 3' },
+  { value: 'artistic4', label: 'Artistic 4' },
+  { value: 'randomsampling1', label: 'Random Sample 1' },
+  { value: 'randomsampling2', label: 'Random Sample 2' },
+  { value: 'fixedpalette', label: 'Fixed Palette' },
   { value: 'custom', label: 'Custom' },
 ]
 
@@ -68,7 +76,7 @@ function SettingRow({
 
 export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps) {
   return (
-    <div className="border-t border-border px-6 py-4" style={{ backgroundColor: 'var(--color-surface)' }}>
+    <div className="border-t px-6 py-4" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
       <Tabs defaultValue="colors" className="w-full">
         <TabsList className="mb-4 h-9 gap-1 p-0.5 rounded-lg w-fit" style={{ backgroundColor: 'var(--color-muted)' }}>
           <TabsTrigger

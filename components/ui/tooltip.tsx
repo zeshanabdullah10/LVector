@@ -22,18 +22,11 @@ function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
 }
 
 function TooltipTrigger({
-  asChild,
+  render,
   children,
   ...props
-}: TooltipPrimitive.Trigger.Props & { asChild?: boolean }) {
-  if (asChild) {
-    return (
-      <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props}>
-        {children}
-      </TooltipPrimitive.Trigger>
-    )
-  }
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props}>{children}</TooltipPrimitive.Trigger>
+}: TooltipPrimitive.Trigger.Props) {
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" render={render} {...props}>{children}</TooltipPrimitive.Trigger>
 }
 
 function TooltipContent({

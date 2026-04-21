@@ -22,7 +22,7 @@ export function HeaderBar() {
       {/* Right controls */}
       <div className="flex items-center gap-1">
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <HelpCircle className="w-4 h-4 text-muted-foreground" />
             </Button>
@@ -31,7 +31,7 @@ export function HeaderBar() {
         </Tooltip>
 
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon"

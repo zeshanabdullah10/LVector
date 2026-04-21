@@ -19,7 +19,7 @@ export function StatsBar({ pathCount, fileSize, colorCount }: StatsBarProps) {
 
   return (
     <div className="h-12 flex items-center justify-center">
-      <p className="text-xs font-mono text-muted-foreground tracking-wide">
+      <p className="text-xs font-mono tracking-wide" style={{ color: 'var(--color-muted-foreground)' }}>
         {parts.join(' · ')}
       </p>
     </div>

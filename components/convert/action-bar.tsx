@@ -41,7 +41,7 @@ const BUTTON_CONFIG: Record<ActionState, {
     label: 'Export EMF',
     icon: <Download className="w-4 h-4" />,
     variant: 'default',
-    className: 'bg-emerald-500 hover:bg-emerald-600',
+    className: 'bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700',
   },
   done: {
     label: 'Download Another',

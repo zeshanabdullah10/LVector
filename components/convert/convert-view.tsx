@@ -91,7 +91,7 @@ export function ConvertView() {
   }, [])
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--color-background)' }}>
       <HeaderBar />
 
       {/* Hidden file input for upload */}

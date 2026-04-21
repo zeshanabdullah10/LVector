@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'convert' | 'library')} className="flex-1 flex flex-col">
-        <TabsList className="w-full justify-start rounded-none border-b px-4 h-11 bg-background">
+        <TabsList className="w-full justify-start rounded-none border-b px-4 h-11" style={{ backgroundColor: 'var(--color-background)' }}>
           <TabsTrigger value="convert">Convert</TabsTrigger>
           <TabsTrigger value="library">Icon Library</TabsTrigger>
         </TabsList>

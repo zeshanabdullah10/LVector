@@ -67,25 +67,30 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
   }
 
   return (
-    <div className="relative flex items-center justify-center bg-muted/20 px-6 py-8 min-h-[300px]">
+    <div
+      className="relative flex items-center justify-center px-6 py-8 min-h-[300px]"
+      style={{ backgroundColor: 'var(--color-muted)' }}
+    >
       {/* Empty state */}
       {!hasContent ? (
         <button
           type="button"
           onClick={onUploadClick}
           className={cn(
-            'w-full max-w-2xl aspect-video rounded-xl border-2 border-dashed',
-            'border-muted-foreground/40 bg-surface flex flex-col items-center justify-center gap-3',
-            'cursor-pointer transition-all duration-200 hover:border-primary hover:bg-primary/5',
-            'focus:outline-none focus:ring-2 focus:ring-primary/50'
+            'w-full max-w-2xl aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-200 hover:border-[var(--color-primary)]',
+            'focus:outline-none focus:ring-2 focus:ring-[var(--color-ring)]/50'
           )}
+          style={{
+            borderColor: 'var(--color-muted-foreground)',
+            backgroundColor: 'var(--color-surface)',
+          }}
         >
-          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-            <Upload className="w-7 h-7 text-muted-foreground" />
+          <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-muted)' }}>
+            <Upload className="w-7 h-7" style={{ color: 'var(--color-muted-foreground)' }} />
           </div>
           <div className="text-center">
-            <p className="text-sm font-medium text-foreground">Drop an image here or click to upload</p>
-            <p className="text-xs text-muted-foreground mt-1">PNG, JPG, GIF, BMP, WEBP</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-foreground)' }}>Drop an image here or click to upload</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--color-muted-foreground)' }}>PNG, JPG, GIF, BMP, WEBP</p>
           </div>
         </button>
       ) : (
@@ -93,20 +98,23 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
         <div
           className={cn(
             'relative w-full max-w-2xl aspect-video rounded-xl overflow-hidden',
-            'bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-border/50',
             'flex items-center justify-center'
           )}
           style={{
-            backgroundImage: `linear-gradient(45deg, #e8e8e8 25%, transparent 25%),
-              linear-gradient(-45deg, #e8e8e8 25%, transparent 25%),
-              linear-gradient(45deg, transparent 75%, #e8e8e8 75%),
-              linear-gradient(-45deg, transparent 75%, #e8e8e8 75%)`,
-            backgroundSize: '20px 20px',
-            backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+            backgroundColor: 'var(--color-background)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+            border: '1px solid var(--color-border)',
           }}
         >
           {error && (
-            <div className="absolute top-3 left-3 right-3 z-20 bg-destructive/10 border border-destructive/30 text-destructive text-xs px-3 py-2 rounded-lg">
+            <div
+              className="absolute top-3 left-3 right-3 z-20 text-xs px-3 py-2 rounded-lg"
+              style={{
+                backgroundColor: 'color-mix(in oklch, var(--color-destructive) 10%, transparent)',
+                border: '1px solid color-mix(in oklch, var(--color-destructive) 30%, transparent)',
+                color: 'var(--color-destructive)',
+              }}
+            >
               {error}
             </div>
           )}
@@ -115,7 +123,14 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
           {/* Floating controls */}
           <div className="absolute top-3 right-3 flex items-center gap-1.5">
             {/* Zoom controls */}
-            <div className="flex items-center gap-0.5 bg-white/90 backdrop-blur-sm rounded-lg border border-border/50 shadow-sm p-0.5">
+            <div
+              className="flex items-center gap-0.5 rounded-lg shadow-sm p-0.5"
+              style={{
+                backgroundColor: 'color-mix(in oklch, var(--color-background) 90%, transparent)',
+                backdropFilter: 'blur(4px)',
+                border: '1px solid var(--color-border)',
+              }}
+            >
               <Button
                 variant="ghost"
                 size="icon"
@@ -147,7 +162,14 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: P
 
             {/* View toggle */}
             {svgOutput && (
-              <div className="flex items-center gap-0.5 bg-white/90 backdrop-blur-sm rounded-lg border border-border/50 shadow-sm p-0.5">
+              <div
+                className="flex items-center gap-0.5 rounded-lg shadow-sm p-0.5"
+                style={{
+                  backgroundColor: 'color-mix(in oklch, var(--color-background) 90%, transparent)',
+                  backdropFilter: 'blur(4px)',
+                  border: '1px solid var(--color-border)',
+                }}
+              >
                 <Button
                   variant={viewMode === 'svg' ? 'secondary' : 'ghost'}
                   size="icon"

@@ -9,14 +9,23 @@ export function HeaderBar() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className="h-14 px-6 flex items-center justify-between border-b border-border bg-surface shrink-0">
+    <header
+      className="h-14 px-6 flex items-center justify-between border-b shrink-0"
+      style={{
+        borderColor: 'var(--color-border)',
+        backgroundColor: 'var(--color-surface)',
+      }}
+    >
       {/* Logo & name */}
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-          <Hexagon className="w-5 h-5 text-white" />
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: 'var(--color-primary)' }}
+        >
+          <Hexagon className="w-5 h-5" style={{ color: 'var(--color-primary-foreground)' }} />
         </div>
-        <span className="text-base font-semibold text-foreground">LVector</span>
-        <span className="text-xs text-muted-foreground ml-1">EMF Converter</span>
+        <span className="text-base font-semibold" style={{ color: 'var(--color-foreground)' }}>LVector</span>
+        <span className="text-xs ml-1" style={{ color: 'var(--color-muted-foreground)' }}>EMF Converter</span>
       </div>
 
       {/* Right controls */}
@@ -26,7 +35,8 @@ export function HeaderBar() {
             render={
               <button
                 type="button"
-                className="inline-flex items-center justify-center rounded-md h-9 w-9 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                className="inline-flex items-center justify-center rounded-md h-9 w-9 transition-colors"
+                style={{ color: 'var(--color-muted-foreground)' }}
                 aria-label="Help & shortcuts"
               />
             }
@@ -41,7 +51,8 @@ export function HeaderBar() {
             render={
               <button
                 type="button"
-                className="inline-flex items-center justify-center rounded-md h-9 w-9 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                className="inline-flex items-center justify-center rounded-md h-9 w-9 transition-colors"
+                style={{ color: 'var(--color-muted-foreground)' }}
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 aria-label="Toggle theme"
               />

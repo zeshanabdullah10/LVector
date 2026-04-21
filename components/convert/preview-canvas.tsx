@@ -11,11 +11,12 @@ interface PreviewCanvasProps {
   inputImage: string | null
   svgOutput: string | null
   onUploadClick: () => void
+  error?: string | null
 }
 
 type ViewMode = 'svg' | 'split' | 'original'
 
-export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewCanvasProps) {
+export function PreviewCanvas({ inputImage, svgOutput, onUploadClick, error }: PreviewCanvasProps) {
   const [zoom, setZoom] = useState(1)
   const [viewMode, setViewMode] = useState<ViewMode>('svg')
 
@@ -104,6 +105,11 @@ export function PreviewCanvas({ inputImage, svgOutput, onUploadClick }: PreviewC
             backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
           }}
         >
+          {error && (
+            <div className="absolute top-3 left-3 right-3 z-20 bg-destructive/10 border border-destructive/30 text-destructive text-xs px-3 py-2 rounded-lg">
+              {error}
+            </div>
+          )}
           {renderPreviewContent()}
 
           {/* Floating controls */}

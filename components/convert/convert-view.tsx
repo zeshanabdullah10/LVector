@@ -118,6 +118,7 @@ export function ConvertView() {
           <PreviewCanvas
             inputImage={inputImage}
             svgOutput={svgOutput}
+            error={error}
             onUploadClick={handleUploadClick}
           />
         </div>

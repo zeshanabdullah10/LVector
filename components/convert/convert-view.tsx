@@ -2,7 +2,6 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { HeaderBar } from './header-bar'
 import { PreviewCanvas } from './preview-canvas'
 import { SettingsPanel } from './settings-panel'
 import { ActionBar } from './action-bar'
@@ -12,10 +11,11 @@ import { useSettings } from '@/hooks/use-settings'
 type ActionState = 'idle' | 'converting' | 'ready'
 
 interface ConvertViewProps {
-  onGoToLibrary?: () => void
+  initialSvg?: string | null
+  onInitialSvgConsumed?: () => void
 }
 
-export function ConvertView({ onGoToLibrary }: ConvertViewProps) {
+export function ConvertView({ initialSvg, onInitialSvgConsumed }: ConvertViewProps) {
   const [inputImage, setInputImage] = useState<string | null>(null)
   const [svgOutput, setSvgOutput] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -33,10 +33,19 @@ export function ConvertView({ onGoToLibrary }: ConvertViewProps) {
 
   const getActionState = (): ActionState => {
     if (isConverting) return 'converting'
-    if (!inputImage) return 'idle'
-    if (!svgOutput) return 'idle'
-    return 'ready'
+    if (!svgOutput && !initialSvg) return 'idle'
+    if (svgOutput || initialSvg) return 'ready'
+    return 'idle'
   }
+
+  const effectiveSvg = svgOutput || initialSvg || null
+
+  // Consume initial SVG (from icon library) once
+  useEffect(() => {
+    if (initialSvg && onInitialSvgConsumed) {
+      onInitialSvgConsumed()
+    }
+  }, [initialSvg, onInitialSvgConsumed])
 
   const convert = useCallback(async () => {
     if (!inputImage) return
@@ -70,14 +79,12 @@ export function ConvertView({ onGoToLibrary }: ConvertViewProps) {
     }
   }, [inputImage, settings])
 
-  // Auto-convert when image is uploaded
   const handleFileSelected = useCallback((dataUrl: string) => {
     setInputImage(dataUrl)
     setSvgOutput(null)
     setError(null)
   }, [])
 
-  // Auto-reconvert when settings change (debounced)
   useEffect(() => {
     if (!inputImage) return
 
@@ -97,14 +104,11 @@ export function ConvertView({ onGoToLibrary }: ConvertViewProps) {
   }, [inputImage, settings, convert])
 
   const handleExportEMF = useCallback(() => {
-    if (!svgOutput) return
+    if (!effectiveSvg) return
     import('@/lib/conversion/svg-to-emf').then(({ exportSvgAsEmf }) => {
-      exportSvgAsEmf(svgOutput, 'lvector-export')
+      exportSvgAsEmf(effectiveSvg, 'lvector-export')
     })
-    setSvgOutput(null)
-    setInputImage(null)
-    setError(null)
-  }, [svgOutput])
+  }, [effectiveSvg])
 
   const handleReset = useCallback(() => {
     setInputImage(null)
@@ -119,8 +123,6 @@ export function ConvertView({ onGoToLibrary }: ConvertViewProps) {
 
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--color-background)' }}>
-      <HeaderBar onGoToLibrary={onGoToLibrary} />
-
       <input
         ref={fileInputRef}
         type="file"
@@ -141,7 +143,7 @@ export function ConvertView({ onGoToLibrary }: ConvertViewProps) {
         <div className="shrink-0">
           <PreviewCanvas
             inputImage={inputImage}
-            svgOutput={svgOutput}
+            svgOutput={effectiveSvg}
             isConverting={isConverting}
             error={error}
             onUploadClick={handleUploadClick}

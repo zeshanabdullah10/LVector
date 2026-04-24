@@ -4,6 +4,8 @@ A browser-based raster-to-vector converter that traces bitmap images to SVG and 
 
 ## What It Does
 
+![LVector UI Preview](public/screenshots/ui-preview.png)
+
 1. **Upload** any raster image (PNG, JPG, GIF, BMP, WEBP)
 2. **Trace** it to vector SVG using imagetracerjs with configurable settings
 3. **Preview** the actual EMF output in real-time (not the raw SVG — you see exactly what gets exported)

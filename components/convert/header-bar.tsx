@@ -1,16 +1,24 @@
 // components/convert/header-bar.tsx
 'use client'
 
-import { HelpCircle, Moon, Sun, Hexagon, Library } from 'lucide-react'
+import { HelpCircle, Moon, Sun, Hexagon, Library, ImagePlus } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
-interface HeaderBarProps {
-  onGoToLibrary?: () => void
+type ViewType = 'convert' | 'library'
+
+interface AppHeaderProps {
+  activeView: ViewType
+  onViewChange: (view: ViewType) => void
 }
 
-export function HeaderBar({ onGoToLibrary }: HeaderBarProps) {
+const NAV_ITEMS: { key: ViewType; label: string; icon: typeof ImagePlus }[] = [
+  { key: 'convert', label: 'Converter', icon: ImagePlus },
+  { key: 'library', label: 'Icon Library', icon: Library },
+]
+
+export function AppHeader({ activeView, onViewChange }: AppHeaderProps) {
   const { theme, setTheme } = useTheme()
 
   return (
@@ -21,30 +29,39 @@ export function HeaderBar({ onGoToLibrary }: HeaderBarProps) {
         backgroundColor: 'var(--color-surface)',
       }}
     >
-      {/* Logo & name */}
-      <div className="flex items-center gap-3">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: 'var(--color-primary)' }}
-        >
-          <Hexagon className="w-5 h-5" style={{ color: 'var(--color-primary-foreground)' }} />
+      {/* Logo & nav */}
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: 'var(--color-primary)' }}
+          >
+            <Hexagon className="w-5 h-5" style={{ color: 'var(--color-primary-foreground)' }} />
+          </div>
+          <span className="text-base font-semibold" style={{ color: 'var(--color-foreground)' }}>LVector</span>
         </div>
-        <span className="text-base font-semibold" style={{ color: 'var(--color-foreground)' }}>LVector</span>
-        <span className="text-xs" style={{ color: 'var(--color-muted-foreground)' }}>EMF Converter</span>
-      </div>
 
-      {/* Center nav */}
-      {onGoToLibrary && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onGoToLibrary}
-          className="text-xs gap-1.5 h-8 px-3"
-        >
-          <Library className="w-3.5 h-3.5" />
-          Icon Library
-        </Button>
-      )}
+        <nav className="flex items-center gap-1" role="tablist">
+          {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={activeView === key}
+              onClick={() => onViewChange(key)}
+              className={cn(
+                'flex items-center gap-1.5 px-3 h-8 rounded-md text-xs font-medium transition-colors',
+              )}
+              style={{
+                backgroundColor: activeView === key ? 'var(--color-muted)' : 'transparent',
+                color: activeView === key ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
+              }}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+            </button>
+          ))}
+        </nav>
+      </div>
 
       {/* Right controls */}
       <div className="flex items-center gap-1">

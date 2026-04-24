@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useCallback, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Search, X, Hexagon, Download, ArrowLeft } from 'lucide-react'
+import { Search, X, Send } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -15,10 +15,10 @@ import type { LucideIconName } from '@/lib/icons/lucide'
 import type { Category } from '@/lib/icons/categories'
 
 interface LibraryViewProps {
-  onBack?: () => void
+  onUseIcon: (svgString: string) => void
 }
 
-export function LibraryView({ onBack }: LibraryViewProps) {
+export function LibraryView({ onUseIcon }: LibraryViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<Category | null>(null)
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null)
@@ -60,17 +60,17 @@ export function LibraryView({ onBack }: LibraryViewProps) {
     setSelectedIcon(iconName)
   }, [])
 
-  const handleExportEmf = useCallback(async () => {
+  const handleUseIcon = useCallback(async () => {
     if (!selectedIcon) return
     const LucideIcon = LUCIDE_MAP[selectedIcon as LucideIconName]
     if (!LucideIcon) return
 
     const container = document.createElement('div')
-    container.style.cssText = 'position:absolute;visibility:hidden;width:24px;height:24px;'
+    container.style.cssText = 'position:absolute;visibility:hidden;width:48px;height:48px;'
     document.body.appendChild(container)
 
     const root = createRoot(container)
-    root.render(<LucideIcon size={24} />)
+    root.render(<LucideIcon size={48} />)
 
     requestAnimationFrame(async () => {
       const svgEl = container.querySelector('svg')
@@ -79,14 +79,12 @@ export function LibraryView({ onBack }: LibraryViewProps) {
         if (!svgStr.includes('xmlns')) {
           svgStr = svgStr.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')
         }
-
-        const { exportSvgAsEmf } = await import('@/lib/conversion/svg-to-emf')
-        exportSvgAsEmf(svgStr, `lvector-${selectedIcon}`)
+        onUseIcon(svgStr)
       }
       root.unmount()
       document.body.removeChild(container)
     })
-  }, [selectedIcon])
+  }, [selectedIcon, onUseIcon])
 
   const handleClearSearch = useCallback(() => {
     setSearchQuery('')
@@ -105,32 +103,8 @@ export function LibraryView({ onBack }: LibraryViewProps) {
 
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0">
-        {/* Header */}
-        <div className="h-14 px-6 flex items-center justify-between border-b shrink-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
-          <div className="flex items-center gap-3">
-            {onBack && (
-              <button
-                type="button"
-                onClick={onBack}
-                className="inline-flex items-center justify-center rounded-md h-9 w-9 transition-colors hover:bg-[var(--color-muted)]"
-                style={{ color: 'var(--color-muted-foreground)' }}
-                aria-label="Back to convert"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-            )}
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: 'var(--color-primary)' }}
-            >
-              <Hexagon className="w-5 h-5" style={{ color: 'var(--color-primary-foreground)' }} />
-            </div>
-            <span className="text-base font-semibold" style={{ color: 'var(--color-foreground)' }}>Icon Library</span>
-          </div>
-        </div>
-
         {/* Search bar */}
-        <div className="p-3 border-b border-border shrink-0" style={{ backgroundColor: 'var(--color-surface)' }}>
+        <div className="p-3 border-b shrink-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'var(--color-muted-foreground)' }} />
             <Input
@@ -174,7 +148,7 @@ export function LibraryView({ onBack }: LibraryViewProps) {
 
         {/* Selection bar */}
         {selectedIcon && (
-          <div className="p-3 border-t border-border shrink-0" style={{ backgroundColor: 'var(--color-surface)' }}>
+          <div className="p-3 border-t shrink-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs" style={{ color: 'var(--color-muted-foreground)' }}>Selected:</span>
@@ -191,11 +165,11 @@ export function LibraryView({ onBack }: LibraryViewProps) {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={handleExportEmf}
+                  onClick={handleUseIcon}
                   className="text-xs gap-1 bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  Export EMF
+                  <Send className="w-3.5 h-3.5" />
+                  Use Icon
                 </Button>
               </div>
             </div>

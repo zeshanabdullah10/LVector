@@ -35,13 +35,7 @@ function EmfPreview({ svgOutput, zoom }: { svgOutput: string; zoom: number }) {
     <canvas
       ref={canvasRef}
       className="max-w-full max-h-full"
-      style={{
-        transform: `scale(${zoom})`,
-        imageRendering: 'pixelated',
-        backgroundImage: 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%)',
-        backgroundSize: '16px 16px',
-        backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
-      }}
+      style={{ transform: `scale(${zoom})`, imageRendering: 'pixelated' }}
     />
   )
 }
@@ -86,7 +80,9 @@ export function PreviewCanvas({ inputImage, svgOutput, isConverting, onUploadCli
             'flex items-center justify-center'
           )}
           style={{
-            backgroundColor: 'var(--color-background)',
+            backgroundImage: 'linear-gradient(45deg, #e8e8e8 25%, transparent 25%), linear-gradient(-45deg, #e8e8e8 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e8e8e8 75%), linear-gradient(-45deg, transparent 75%, #e8e8e8 75%)',
+            backgroundSize: '16px 16px',
+            backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
             boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
             border: '1px solid var(--color-border)',
           }}
@@ -108,7 +104,7 @@ export function PreviewCanvas({ inputImage, svgOutput, isConverting, onUploadCli
           {isConverting && (
             <div
               className="absolute inset-0 z-30 flex items-center justify-center"
-              style={{ backgroundColor: 'var(--color-background)', opacity: 0.8 }}
+              style={{ backgroundColor: 'rgba(255,255,255,0.8)' }}
             >
               <div className="flex flex-col items-center gap-2">
                 <div className="w-8 h-8 rounded-full border-2 border-t-primary animate-spin" />

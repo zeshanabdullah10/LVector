@@ -922,6 +922,11 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
   let objIdx = 0
 
   const MIN_OPACITY = 0.5
+  const BG_THRESHOLD = 240
+
+  function isBackground(r: number, g: number, b: number): boolean {
+    return r >= BG_THRESHOLD && g >= BG_THRESHOLD && b >= BG_THRESHOLD
+  }
 
   for (const cmd of allCmds) {
     const hasFill = cmd.fill && cmd.fill !== 'none' && cmd.fillOpacity >= MIN_OPACITY
@@ -930,8 +935,12 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
     if (!hasFill && !hasStroke) continue
 
     if (hasFill) {
-      const fcr = rgbToCR(...parseColor(cmd.fill))
-      const scr = hasStroke ? rgbToCR(...parseColor(cmd.stroke)) : fcr
+      const [fr, fg, fb] = parseColor(cmd.fill)
+      if (isBackground(fr, fg, fb)) continue
+      const fcr = rgbToCR(fr, fg, fb)
+      const [sr, sg, sb] = hasStroke ? parseColor(cmd.stroke) : [fr, fg, fb]
+      if (isBackground(sr, sg, sb)) continue
+      const scr = rgbToCR(sr, sg, sb)
       const sw = hasStroke ? Math.max(1, Math.round(cmd.strokeWidth || 1)) : 1
 
       // Merge all subpaths into a single polygon for correct hole handling.
@@ -987,7 +996,9 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
         )
       }
     } else if (hasStroke) {
-      const scr = rgbToCR(...parseColor(cmd.stroke))
+      const [sr, sg, sb] = parseColor(cmd.stroke)
+      if (isBackground(sr, sg, sb)) continue
+      const scr = rgbToCR(sr, sg, sb)
       const sw = Math.max(1, Math.round(cmd.strokeWidth || 1))
 
       for (const sub of cmd.subpaths) {

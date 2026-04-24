@@ -17,6 +17,10 @@ declare module 'imagetracerjs' {
     desc?: string
     viewbox?: boolean
     preset?: string
+    rightangleenhance?: boolean
+    corsenabled?: boolean
+    lcpr?: number
+    qcpr?: number
   }
 
   export interface ImageDataLike {
@@ -28,6 +32,11 @@ declare module 'imagetracerjs' {
   export const optionpresets: Record<string, ImageTracerOptions>
   export function imagedataToSVG(imageData: ImageDataLike, options?: ImageTracerOptions): string
   export function checkoptions(options: ImageTracerOptions): void
-}
 
-export default {}
+  const _default: {
+    optionpresets: Record<string, ImageTracerOptions>
+    imagedataToSVG(imageData: ImageDataLike, options?: ImageTracerOptions): string
+    checkoptions(options: ImageTracerOptions): void
+  }
+  export default _default
+}

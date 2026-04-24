@@ -82,22 +82,56 @@ export function ConvertView({ initialSvg, onInitialSvgConsumed }: ConvertViewPro
       setError(null)
 
       try {
-        const base64 = inputImage.split(',')[1]
-        const response = await fetch('/api/convert', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            imageData: base64,
-            mimeType: 'image/png',
-            options: settings,
-          }),
+        const img = new Image()
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve()
+          img.onerror = () => reject(new Error('Failed to load image'))
+          img.src = inputImage
         })
 
-        const data = await response.json()
-        if (!response.ok) throw new Error(data.error || 'Conversion failed')
+        const canvas = document.createElement('canvas')
+        canvas.width = img.naturalWidth
+        canvas.height = img.naturalHeight
+        const ctx = canvas.getContext('2d')
+        if (!ctx) throw new Error('Canvas not supported')
+        ctx.drawImage(img, 0, 0)
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+        const ImageTracerMod = await import('imagetracerjs')
+        const ImageTracer: any = ImageTracerMod.default || ImageTracerMod
+
+        const tracerOptions: Record<string, any> = {}
+        if (settings.preset && settings.preset !== 'custom') {
+          const presets = (ImageTracer as any).optionpresets
+          if (presets && presets[settings.preset]) {
+            Object.assign(tracerOptions, presets[settings.preset])
+          }
+        }
+
+        const numericKeys = [
+          'ltres', 'qtres', 'pathomit', 'colorsampling', 'numberofcolors',
+          'mincolorratio', 'colorquantcycles', 'blurradius', 'blurdelta',
+          'scale', 'roundcoords', 'strokewidth', 'linefilter', 'layering',
+        ]
+        const stringKeys = ['desc', 'viewbox']
+        for (const key of numericKeys) {
+          if ((settings as any)[key] !== undefined && (settings as any)[key] !== null && (settings as any)[key] !== '') {
+            tracerOptions[key] = Number((settings as any)[key])
+          }
+        }
+        for (const key of stringKeys) {
+          if ((settings as any)[key] !== undefined && (settings as any)[key] !== null) {
+            tracerOptions[key] = (settings as any)[key]
+          }
+        }
+        if ((ImageTracer as any).checkoptions) {
+          (ImageTracer as any).checkoptions(tracerOptions)
+        }
+
+        const svgString = (ImageTracer as any).imagedataToSVG(imgData, tracerOptions)
 
         if (requestIdRef.current === thisRequestId) {
-          setSvgOutput(data.svg)
+          setSvgOutput(svgString)
         }
       } catch (err: unknown) {
         if (requestIdRef.current === thisRequestId) {

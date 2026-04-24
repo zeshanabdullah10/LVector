@@ -1,5 +1,8 @@
-// lib/icons/index.ts
-export { CATEGORIES, getAllIconNames, getIconByName } from './categories'
-export type { Category, Subcategory } from './categories'
-export { LUCIDE_MAP } from './lucide'
-export type { LucideIconName } from './lucide'
+export { CATEGORIES, getAllIconNames, getAllIconCount, getCategoryNames, getSubcategories, getIconsBySubcategory } from './categories'
+export type { Category } from './categories'
+export { ALL_ICON_NAMES } from './icon-names'
+export type { IconName } from './icon-names'
+export { loadAllIcons, getCachedIcons, isIconsLoaded } from './icon-loader'
+export type { IconComponentMap } from './icon-loader'
+export { ICONIFY_SETS, getIconifyIconNames, getIconifySetNames, getIconifyCategories } from './iconify-categories'
+export type { IconSet } from './iconify-categories'

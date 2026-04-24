@@ -124,6 +124,10 @@ export function PreviewCanvas({ inputImage, svgOutput, isConverting, onUploadCli
             />
           )}
 
+          {svgOutput && !inputImage && (
+            <EmfPreview svgOutput={svgOutput} zoom={zoom} />
+          )}
+
           {inputImage && !svgOutput && !isConverting && (
             <img
               src={inputImage}

@@ -23,25 +23,28 @@ export function AppHeader({ activeView, onViewChange }: AppHeaderProps) {
 
   return (
     <header
-      className="h-14 px-6 flex items-center justify-between border-b shrink-0"
+      className="h-12 px-4 flex items-center border-b shrink-0"
       style={{
         borderColor: 'var(--color-border)',
         backgroundColor: 'var(--color-surface)',
       }}
     >
-      {/* Logo & nav */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: 'var(--color-primary)' }}
-          >
-            <Hexagon className="w-5 h-5" style={{ color: 'var(--color-primary-foreground)' }} />
-          </div>
-          <span className="text-base font-semibold" style={{ color: 'var(--color-foreground)' }}>LVector</span>
+      {/* Logo */}
+      <div className="flex items-center gap-2 shrink-0">
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: 'var(--color-primary)' }}
+        >
+          <Hexagon className="w-4 h-4" style={{ color: 'var(--color-primary-foreground)' }} />
         </div>
+        <span className="text-sm font-semibold tracking-tight" style={{ color: 'var(--color-foreground)' }}>LVector</span>
+      </div>
 
-        <nav className="flex items-center gap-1" role="tablist">
+      {/* Separator */}
+      <div className="mx-4 h-5 w-px" style={{ backgroundColor: 'var(--color-border)' }} />
+
+      {/* Nav */}
+      <nav className="flex items-center gap-0.5" role="tablist">
           {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -61,7 +64,9 @@ export function AppHeader({ activeView, onViewChange }: AppHeaderProps) {
             </button>
           ))}
         </nav>
-      </div>
+
+      {/* Spacer */}
+      <div className="flex-1" />
 
       {/* Right controls */}
       <div className="flex items-center gap-1">

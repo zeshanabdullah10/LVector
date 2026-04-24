@@ -26,26 +26,21 @@ export async function POST(request: NextRequest) {
 
     const buffer = Buffer.from(imageData, 'base64')
 
-    // Use sharp to decode the image and get raw RGBA pixel data
     const { data: rgbaData, info } = await sharp(buffer)
       .ensureAlpha()
       .raw()
       .toBuffer({ resolveWithObject: true })
 
-    // Create ImageData-like object for imagetracerjs
     const imageDataObj = {
       width: info.width,
       height: info.height,
       data: new Uint8ClampedArray(rgbaData),
     }
 
-    // Get imagetracerjs
     const ImageTracer = await getTracer()
 
-    // Build tracer options
     const tracerOptions: Record<string, any> = {}
 
-    // Apply preset if not custom
     if (options.preset && options.preset !== 'custom') {
       const presets = (ImageTracer as any).optionpresets
       if (presets && presets[options.preset as string]) {
@@ -53,7 +48,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Apply numeric options
     const numericKeys = [
       'ltres', 'qtres', 'pathomit', 'colorsampling', 'numberofcolors',
       'mincolorratio', 'colorquantcycles', 'blurradius', 'blurdelta',
@@ -74,12 +68,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Validate options
     if ((ImageTracer as any).checkoptions) {
       (ImageTracer as any).checkoptions(tracerOptions)
     }
 
-    // Convert to SVG
     const svgString = (ImageTracer as any).imagedataToSVG(imageDataObj, tracerOptions)
 
     return NextResponse.json({

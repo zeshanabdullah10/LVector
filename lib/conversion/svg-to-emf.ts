@@ -848,7 +848,7 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
   const doc = parser.parseFromString(svgString, 'image/svg+xml')
   const svg = doc.documentElement as unknown as SVGSVGElement
 
-  let vbX = 0, vbY = 0, vbW = 100, vbH = 100
+  let vbX = 0, vbY = 0, vbW = 0, vbH = 0
   const vb = svg.getAttribute('viewBox')
   if (vb) {
     const p = vb.split(/[\s,]+/).map(Number)
@@ -857,7 +857,8 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
   const w = parseFloat(svg.getAttribute('width') || String(vbW)) || vbW
   const h = parseFloat(svg.getAttribute('height') || String(vbH)) || vbH
 
-  const scaleX = w / vbW, scaleY = h / vbH
+  const scaleX = vbW > 0 ? w / vbW : 1
+  const scaleY = vbH > 0 ? h / vbH : 1
 
   // FIX #1: Build the viewBox-to-device transform as a proper Matrix so it
   // composes correctly with element transforms via collectElements.
@@ -920,9 +921,27 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
   const draw: Uint8Array[] = []
   let objIdx = 0
 
+  const whiteCr = rgbToCR(255, 255, 255)
+  const bgPenIdx = objIdx++
+  const bgBrushIdx = objIdx++
+  draw.push(
+    recCreatePen(bgPenIdx, 1, whiteCr),
+    recSelectObj(bgPenIdx),
+    recCreateBrush(bgBrushIdx, whiteCr),
+    recSelectObj(bgBrushIdx),
+    recPolygon(
+      [[0, 0], [Math.round(w), 0], [Math.round(w), Math.round(h)], [0, Math.round(h)], [0, 0]] as Pt[],
+      0, 0, Math.round(w), Math.round(h),
+    ),
+    recDeleteObj(bgBrushIdx),
+    recDeleteObj(bgPenIdx),
+  )
+
   for (const cmd of allCmds) {
-    const hasFill = cmd.fill && cmd.fill !== 'none'
-    const hasStroke = cmd.stroke && cmd.stroke !== 'none'
+    const hasFill = cmd.fill && cmd.fill !== 'none' && cmd.fillOpacity > 0
+    const hasStroke = cmd.stroke && cmd.stroke !== 'none' && cmd.strokeOpacity > 0
+
+    if (!hasFill && !hasStroke) continue
 
     if (hasFill) {
       const [fr, fg, fb] = applyOpacity(parseColor(cmd.fill), cmd.fillOpacity)
@@ -933,17 +952,33 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
       const scr = rgbToCR(sr, sg, sb)
       const sw = hasStroke ? Math.max(1, Math.round(cmd.strokeWidth || 1)) : 1
 
+      // Merge all subpaths into a single polygon for correct hole handling.
+      // With WINDING fill mode, opposite-winding subpaths create holes.
+      const mergedPts: Pt[] = []
+      let mergedL = Infinity, mergedT = Infinity, mergedR = -Infinity, mergedB = -Infinity
       for (const sub of cmd.subpaths) {
-        const bb = boundsPts(sub.points)
         let pts = sub.points
         const first = pts[0], last = pts[pts.length - 1]
         if (first[0] !== last[0] || first[1] !== last[1]) pts = [...pts, [first[0], first[1]]]
+        if (pts.length < 3) continue
+        // Connect to previous subpath with a degenerate edge
+        if (mergedPts.length > 0) {
+          mergedPts.push([pts[0][0], pts[0][1]])
+        }
+        mergedPts.push(...pts)
+        const bb = boundsPts(pts)
+        if (bb.l < mergedL) mergedL = bb.l
+        if (bb.t < mergedT) mergedT = bb.t
+        if (bb.r > mergedR) mergedR = bb.r
+        if (bb.b > mergedB) mergedB = bb.b
+      }
 
-        // Degenerate path (< 3 unique points) — render as a 1px dot
-        if (pts.length < 3) {
-          const cx = Math.round(first[0]), cy = Math.round(first[1])
+      if (mergedPts.length < 3) {
+        // Degenerate — render as 1px dot
+        const sub0 = cmd.subpaths[0]
+        if (sub0) {
+          const cx = Math.round(sub0.points[0][0]), cy = Math.round(sub0.points[0][1])
           const dotPts: Pt[] = [[cx, cy], [cx + 1, cy], [cx + 1, cy + 1], [cx, cy + 1], [cx, cy]]
-          const dotBounds = { l: cx, t: cy, r: cx + 1, b: cy + 1 }
           const penIdx = objIdx++
           const brushIdx = objIdx++
           draw.push(
@@ -951,13 +986,12 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
             recSelectObj(penIdx),
             recCreateBrush(brushIdx, fcr),
             recSelectObj(brushIdx),
-            recPolygon(dotPts, dotBounds.l, dotBounds.t, dotBounds.r, dotBounds.b),
+            recPolygon(dotPts, cx, cy, cx + 1, cy + 1),
             recDeleteObj(brushIdx),
             recDeleteObj(penIdx),
           )
-          continue
         }
-
+      } else {
         const penIdx = objIdx++
         const brushIdx = objIdx++
         draw.push(
@@ -965,7 +999,7 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
           recSelectObj(penIdx),
           recCreateBrush(brushIdx, fcr),
           recSelectObj(brushIdx),
-          recPolygon(pts, bb.l, bb.t, bb.r, bb.b),
+          recPolygon(mergedPts, mergedL, mergedT, mergedR, mergedB),
           recDeleteObj(brushIdx),
           recDeleteObj(penIdx),
         )

@@ -72,18 +72,24 @@ export function LibraryView({ onUseIcon }: LibraryViewProps) {
     const root = createRoot(container)
     root.render(<LucideIcon size={48} />)
 
-    requestAnimationFrame(async () => {
-      const svgEl = container.querySelector('svg')
-      if (svgEl) {
-        let svgStr = svgEl.outerHTML
-        if (!svgStr.includes('xmlns')) {
-          svgStr = svgStr.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')
-        }
-        onUseIcon(svgStr)
-      }
-      root.unmount()
-      document.body.removeChild(container)
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          resolve()
+        })
+      })
     })
+
+    const svgEl = container.querySelector('svg')
+    if (svgEl) {
+      let svgStr = svgEl.outerHTML
+      if (!svgStr.includes('xmlns')) {
+        svgStr = svgStr.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')
+      }
+      onUseIcon(svgStr)
+    }
+    root.unmount()
+    document.body.removeChild(container)
   }, [selectedIcon, onUseIcon])
 
   const handleClearSearch = useCallback(() => {

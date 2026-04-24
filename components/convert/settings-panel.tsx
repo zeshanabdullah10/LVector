@@ -1,9 +1,9 @@
 // components/convert/settings-panel.tsx
 'use client'
 
+import { useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { ConversionSettings } from '@/lib/conversion/types'
 
 interface SettingsPanelProps {
@@ -27,11 +27,13 @@ const PRESETS = [
   { value: 'artistic2', label: 'Artistic 2' },
   { value: 'artistic3', label: 'Artistic 3' },
   { value: 'artistic4', label: 'Artistic 4' },
-  { value: 'randomsampling1', label: 'Random Sample 1' },
-  { value: 'randomsampling2', label: 'Random Sample 2' },
-  { value: 'fixedpalette', label: 'Fixed Palette' },
+  { value: 'randomsampling1', label: 'Random 1' },
+  { value: 'randomsampling2', label: 'Random 2' },
+  { value: 'fixedpalette', label: 'Fixed' },
   { value: 'custom', label: 'Custom' },
 ]
+
+type TabValue = 'presets' | 'colors' | 'shape' | 'output'
 
 function SettingRow({
   label,
@@ -75,42 +77,39 @@ function SettingRow({
 }
 
 export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps) {
+  const [activeTab, setActiveTab] = useState<TabValue>('colors')
+
+  const tabs: { value: TabValue; label: string }[] = [
+    { value: 'presets', label: 'Presets' },
+    { value: 'colors', label: 'Colors' },
+    { value: 'shape', label: 'Shape' },
+    { value: 'output', label: 'Output' },
+  ]
+
   return (
     <div className="border-t px-6 py-4" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
-      <Tabs defaultValue="colors" className="w-full">
-        <TabsList className="mb-4 h-9 gap-1 p-0.5 rounded-lg w-fit" style={{ backgroundColor: 'var(--color-muted)' }}>
-          <TabsTrigger
-            value="presets"
-            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:shadow-sm"
-            style={{ backgroundColor: 'var(--color-background)' }}
+      {/* Tab buttons */}
+      <div className="flex gap-1 p-0.5 rounded-lg w-fit mb-4" style={{ backgroundColor: 'var(--color-muted)' }}>
+        {tabs.map(tab => (
+          <button
+            key={tab.value}
+            type="button"
+            onClick={() => setActiveTab(tab.value)}
+            className="text-xs px-4 py-1.5 h-8 rounded-full transition-all duration-150"
+            style={
+              activeTab === tab.value
+                ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
+                : { backgroundColor: 'var(--color-background)', color: 'var(--color-muted-foreground)' }
+            }
           >
-            Presets
-          </TabsTrigger>
-          <TabsTrigger
-            value="colors"
-            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:shadow-sm"
-            style={{ backgroundColor: 'var(--color-background)' }}
-          >
-            Colors
-          </TabsTrigger>
-          <TabsTrigger
-            value="shape"
-            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:shadow-sm"
-            style={{ backgroundColor: 'var(--color-background)' }}
-          >
-            Shape
-          </TabsTrigger>
-          <TabsTrigger
-            value="output"
-            className="text-xs px-4 py-1.5 h-8 rounded-full data-[state=active]:shadow-sm"
-            style={{ backgroundColor: 'var(--color-background)' }}
-          >
-            Output
-          </TabsTrigger>
-        </TabsList>
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {/* Presets tab */}
-        <TabsContent value="presets" className="space-y-3">
+      {/* Tab content */}
+      {activeTab === 'presets' && (
+        <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             {PRESETS.map(p => (
               <button
@@ -128,20 +127,22 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
               </button>
             ))}
           </div>
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Colors tab */}
-        <TabsContent value="colors" className="space-y-1">
+      {activeTab === 'colors' && (
+        <div className="space-y-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
             <SettingRow label="Number of colors" id="numberofcolors" min={2} max={64} step={1} value={settings.numberofcolors} onChange={(v) => onSettingChange('numberofcolors', v)} />
             <SettingRow label="Color sampling" id="colorsampling" min={0} max={2} step={1} value={settings.colorsampling} onChange={(v) => onSettingChange('colorsampling', v)} />
             <SettingRow label="Color quant cycles" id="colorquantcycles" min={1} max={10} step={1} value={settings.colorquantcycles} onChange={(v) => onSettingChange('colorquantcycles', v)} />
             <SettingRow label="Min color ratio" id="mincolorratio" min={0} max={1} step={0.05} value={settings.mincolorratio} onChange={(v) => onSettingChange('mincolorratio', v)} format={(v) => v.toFixed(2)} />
           </div>
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Shape tab */}
-        <TabsContent value="shape" className="space-y-1">
+      {activeTab === 'shape' && (
+        <div className="space-y-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
             <SettingRow label="Line threshold" id="ltres" min={0.1} max={10} step={0.1} value={settings.ltres} onChange={(v) => onSettingChange('ltres', v)} format={(v) => v.toFixed(1)} />
             <SettingRow label="Curve threshold" id="qtres" min={0.1} max={10} step={0.1} value={settings.qtres} onChange={(v) => onSettingChange('qtres', v)} format={(v) => v.toFixed(1)} />
@@ -159,10 +160,11 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
               />
             </div>
           </div>
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Output tab */}
-        <TabsContent value="output" className="space-y-1">
+      {activeTab === 'output' && (
+        <div className="space-y-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0">
             <SettingRow label="Stroke width" id="strokewidth" min={0} max={10} step={0.5} value={settings.strokewidth} onChange={(v) => onSettingChange('strokewidth', v)} format={(v) => v.toFixed(1)} />
             <SettingRow label="Round coords" id="roundcoords" min={0} max={10} step={0.5} value={settings.roundcoords} onChange={(v) => onSettingChange('roundcoords', v)} format={(v) => v.toFixed(1)} />
@@ -179,8 +181,8 @@ export function SettingsPanel({ settings, onSettingChange }: SettingsPanelProps)
               />
             </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
     </div>
   )
 }

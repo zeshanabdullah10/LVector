@@ -4,8 +4,8 @@ import sharp from 'sharp'
 export const maxDuration = 30
 
 interface ConvertRequest {
-  imageData: string
-  mimeType: string
+  imageData?: string
+  mimeType?: string
   options: Record<string, number | string | boolean>
 }
 

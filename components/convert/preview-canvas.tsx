@@ -1,11 +1,13 @@
 // components/convert/preview-canvas.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { ZoomIn, ZoomOut, Maximize2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ComparisonSlider } from './comparison-slider'
 import { cn } from '@/lib/utils'
+import { buildEmfFromSvg } from '@/lib/conversion/svg-to-emf'
+import { renderEmfToCanvas } from '@/lib/conversion/emf-renderer'
 
 interface PreviewCanvasProps {
   inputImage: string | null
@@ -13,6 +15,26 @@ interface PreviewCanvasProps {
   isConverting?: boolean
   onUploadClick: () => void
   error?: string | null
+}
+
+function EmfPreview({ svgOutput, zoom }: { svgOutput: string; zoom: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    if (!canvasRef.current || !svgOutput) return
+    try {
+      const emf = buildEmfFromSvg(svgOutput)
+      renderEmfToCanvas(emf, canvasRef.current)
+    } catch {}
+  }, [svgOutput])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="max-w-full max-h-full"
+      style={{ transform: `scale(${zoom})`, imageRendering: 'pixelated' }}
+    />
+  )
 }
 
 export function PreviewCanvas({ inputImage, svgOutput, isConverting, onUploadClick, error }: PreviewCanvasProps) {
@@ -97,11 +119,7 @@ export function PreviewCanvas({ inputImage, svgOutput, isConverting, onUploadCli
                 />
               }
               rightContent={
-                <div
-                  className="max-w-full max-h-full"
-                  style={{ transform: `scale(${zoom})` }}
-                  dangerouslySetInnerHTML={{ __html: svgOutput }}
-                />
+                <EmfPreview svgOutput={svgOutput} zoom={zoom} />
               }
             />
           )}

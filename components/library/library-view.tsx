@@ -1,22 +1,24 @@
 // components/library/library-view.tsx
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
-import { Search, X } from 'lucide-react'
+import { useState, useMemo, useCallback, useRef } from 'react'
+import { createRoot } from 'react-dom/client'
+import { Search, X, Hexagon, Download, ArrowLeft } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { CategorySidebar } from './category-sidebar'
 import { IconGrid } from './icon-grid'
 import { CATEGORIES, getAllIconNames } from '@/lib/icons/categories'
+import { LUCIDE_MAP } from '@/lib/icons/lucide'
+import type { LucideIconName } from '@/lib/icons/lucide'
 import type { Category } from '@/lib/icons/categories'
 
 interface LibraryViewProps {
-  onSelectIcon: (iconName: string) => void
+  onBack?: () => void
 }
 
-export function LibraryView({ onSelectIcon }: LibraryViewProps) {
+export function LibraryView({ onBack }: LibraryViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<Category | null>(null)
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null)
@@ -31,24 +33,20 @@ export function LibraryView({ onSelectIcon }: LibraryViewProps) {
     let icons: string[] = []
 
     if (searchQuery.trim()) {
-      // Search across all icons
       icons = getAllIconNames().filter((name) =>
         name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     } else if (activeCategory === null) {
-      // All icons from first subcategory of each category
       for (const cat of Object.keys(CATEGORIES) as Category[]) {
         const subcats = Object.keys(CATEGORIES[cat])
         if (subcats.length > 0) {
           icons.push(...(CATEGORIES[cat] as unknown as Record<string, readonly string[]>)[subcats[0]])
         }
       }
-      // Flatten and deduplicate
       icons = [...new Set(icons)]
     } else if (activeSubcategory) {
       icons = [...((CATEGORIES[activeCategory] as unknown as Record<string, readonly string[]>)[activeSubcategory] || [])]
     } else {
-      // All icons in category
       for (const subIcons of Object.values(CATEGORIES[activeCategory] as unknown as Record<string, readonly string[]>)) {
         icons.push(...subIcons)
       }
@@ -62,11 +60,33 @@ export function LibraryView({ onSelectIcon }: LibraryViewProps) {
     setSelectedIcon(iconName)
   }, [])
 
-  const handleConfirmSelection = useCallback(() => {
-    if (selectedIcon) {
-      onSelectIcon(selectedIcon)
-    }
-  }, [selectedIcon, onSelectIcon])
+  const handleExportEmf = useCallback(async () => {
+    if (!selectedIcon) return
+    const LucideIcon = LUCIDE_MAP[selectedIcon as LucideIconName]
+    if (!LucideIcon) return
+
+    const container = document.createElement('div')
+    container.style.cssText = 'position:absolute;visibility:hidden;width:24px;height:24px;'
+    document.body.appendChild(container)
+
+    const root = createRoot(container)
+    root.render(<LucideIcon size={24} />)
+
+    requestAnimationFrame(async () => {
+      const svgEl = container.querySelector('svg')
+      if (svgEl) {
+        let svgStr = svgEl.outerHTML
+        if (!svgStr.includes('xmlns')) {
+          svgStr = svgStr.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')
+        }
+
+        const { exportSvgAsEmf } = await import('@/lib/conversion/svg-to-emf')
+        exportSvgAsEmf(svgStr, `lvector-${selectedIcon}`)
+      }
+      root.unmount()
+      document.body.removeChild(container)
+    })
+  }, [selectedIcon])
 
   const handleClearSearch = useCallback(() => {
     setSearchQuery('')
@@ -75,7 +95,7 @@ export function LibraryView({ onSelectIcon }: LibraryViewProps) {
   return (
     <div className="flex h-full overflow-hidden">
       {/* Sidebar */}
-      <div className="w-48 border-r border-border bg-card shrink-0">
+      <div className="w-48 border-r shrink-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
         <CategorySidebar
           activeCategory={activeCategory}
           activeSubcategory={activeSubcategory}
@@ -85,10 +105,34 @@ export function LibraryView({ onSelectIcon }: LibraryViewProps) {
 
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0">
+        {/* Header */}
+        <div className="h-14 px-6 flex items-center justify-between border-b shrink-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
+          <div className="flex items-center gap-3">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="inline-flex items-center justify-center rounded-md h-9 w-9 transition-colors hover:bg-[var(--color-muted)]"
+                style={{ color: 'var(--color-muted-foreground)' }}
+                aria-label="Back to convert"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: 'var(--color-primary)' }}
+            >
+              <Hexagon className="w-5 h-5" style={{ color: 'var(--color-primary-foreground)' }} />
+            </div>
+            <span className="text-base font-semibold" style={{ color: 'var(--color-foreground)' }}>Icon Library</span>
+          </div>
+        </div>
+
         {/* Search bar */}
-        <div className="p-3 border-b border-border bg-card shrink-0">
+        <div className="p-3 border-b border-border shrink-0" style={{ backgroundColor: 'var(--color-surface)' }}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'var(--color-muted-foreground)' }} />
             <Input
               type="text"
               placeholder="Search icons..."
@@ -100,7 +144,8 @@ export function LibraryView({ onSelectIcon }: LibraryViewProps) {
             {searchQuery && (
               <button
                 onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+                style={{ color: 'var(--color-muted-foreground)' }}
                 aria-label="Clear search"
               >
                 <X className="h-3 w-3" />
@@ -118,7 +163,7 @@ export function LibraryView({ onSelectIcon }: LibraryViewProps) {
               selectedIcon={selectedIcon || undefined}
             />
           ) : (
-            <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">
+            <div className="flex items-center justify-center h-48 text-sm" style={{ color: 'var(--color-muted-foreground)' }}>
               {searchQuery
                 ? `No icons found for "${searchQuery}"`
                 : 'Select a category or search for icons'
@@ -129,11 +174,11 @@ export function LibraryView({ onSelectIcon }: LibraryViewProps) {
 
         {/* Selection bar */}
         {selectedIcon && (
-          <div className="p-3 border-t border-border bg-card shrink-0">
+          <div className="p-3 border-t border-border shrink-0" style={{ backgroundColor: 'var(--color-surface)' }}>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Selected:</span>
-                <span className="text-sm font-mono font-medium">{selectedIcon}</span>
+                <span className="text-xs" style={{ color: 'var(--color-muted-foreground)' }}>Selected:</span>
+                <span className="text-sm font-mono font-medium" style={{ color: 'var(--color-foreground)' }}>{selectedIcon}</span>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -146,10 +191,11 @@ export function LibraryView({ onSelectIcon }: LibraryViewProps) {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={handleConfirmSelection}
-                  className="text-xs gap-1"
+                  onClick={handleExportEmf}
+                  className="text-xs gap-1 bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700"
                 >
-                  Use Icon
+                  <Download className="w-3.5 h-3.5" />
+                  Export EMF
                 </Button>
               </div>
             </div>

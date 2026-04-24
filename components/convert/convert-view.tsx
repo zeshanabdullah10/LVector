@@ -11,7 +11,11 @@ import { useSettings } from '@/hooks/use-settings'
 
 type ActionState = 'idle' | 'converting' | 'ready'
 
-export function ConvertView() {
+interface ConvertViewProps {
+  onGoToLibrary?: () => void
+}
+
+export function ConvertView({ onGoToLibrary }: ConvertViewProps) {
   const [inputImage, setInputImage] = useState<string | null>(null)
   const [svgOutput, setSvgOutput] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -115,7 +119,7 @@ export function ConvertView() {
 
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--color-background)' }}>
-      <HeaderBar />
+      <HeaderBar onGoToLibrary={onGoToLibrary} />
 
       <input
         ref={fileInputRef}

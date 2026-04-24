@@ -1,11 +1,16 @@
 // components/convert/header-bar.tsx
 'use client'
 
-import { HelpCircle, Moon, Sun, Hexagon } from 'lucide-react'
+import { HelpCircle, Moon, Sun, Hexagon, Library } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Button } from '@/components/ui/button'
 
-export function HeaderBar() {
+interface HeaderBarProps {
+  onGoToLibrary?: () => void
+}
+
+export function HeaderBar({ onGoToLibrary }: HeaderBarProps) {
   const { theme, setTheme } = useTheme()
 
   return (
@@ -17,7 +22,7 @@ export function HeaderBar() {
       }}
     >
       {/* Logo & name */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ backgroundColor: 'var(--color-primary)' }}
@@ -25,8 +30,21 @@ export function HeaderBar() {
           <Hexagon className="w-5 h-5" style={{ color: 'var(--color-primary-foreground)' }} />
         </div>
         <span className="text-base font-semibold" style={{ color: 'var(--color-foreground)' }}>LVector</span>
-        <span className="text-xs ml-1" style={{ color: 'var(--color-muted-foreground)' }}>EMF Converter</span>
+        <span className="text-xs" style={{ color: 'var(--color-muted-foreground)' }}>EMF Converter</span>
       </div>
+
+      {/* Center nav */}
+      {onGoToLibrary && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onGoToLibrary}
+          className="text-xs gap-1.5 h-8 px-3"
+        >
+          <Library className="w-3.5 h-3.5" />
+          Icon Library
+        </Button>
+      )}
 
       {/* Right controls */}
       <div className="flex items-center gap-1">

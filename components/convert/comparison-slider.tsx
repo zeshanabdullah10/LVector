@@ -97,16 +97,19 @@ export function ComparisonSlider({
       aria-valuemax={100}
       aria-valuenow={position}
     >
-      {/* Left side - original (revealed by clip moving right) */}
+      {/* Left side - original (revealed as slider moves right) */}
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="absolute inset-0 flex items-center justify-center overflow-hidden"
         style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
       >
         {leftContent}
       </div>
 
-      {/* Right side - SVG */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Right side - SVG (revealed as slider moves left from right edge) */}
+      <div
+        className="absolute inset-0 flex items-center justify-center overflow-hidden"
+        style={{ clipPath: `inset(0 0 0 ${position}%)` }}
+      >
         {rightContent}
       </div>
 

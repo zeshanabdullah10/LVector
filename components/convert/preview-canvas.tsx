@@ -24,7 +24,10 @@ function EmfPreview({ svgOutput, zoom }: { svgOutput: string; zoom: number }) {
     if (!canvasRef.current || !svgOutput) return
     try {
       const emf = buildEmfFromSvg(svgOutput)
-      renderEmfToCanvas(emf, canvasRef.current)
+      const c = canvasRef.current
+      const ctx = c.getContext('2d')
+      if (!ctx) return
+      renderEmfToCanvas(emf, c)
     } catch {}
   }, [svgOutput])
 
@@ -32,7 +35,13 @@ function EmfPreview({ svgOutput, zoom }: { svgOutput: string; zoom: number }) {
     <canvas
       ref={canvasRef}
       className="max-w-full max-h-full"
-      style={{ transform: `scale(${zoom})`, imageRendering: 'pixelated' }}
+      style={{
+        transform: `scale(${zoom})`,
+        imageRendering: 'pixelated',
+        backgroundImage: 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%)',
+        backgroundSize: '16px 16px',
+        backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
+      }}
     />
   )
 }

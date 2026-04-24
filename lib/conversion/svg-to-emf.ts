@@ -921,22 +921,6 @@ export function buildEmfFromSvg(svgString: string): Uint8Array {
   const draw: Uint8Array[] = []
   let objIdx = 0
 
-  const whiteCr = rgbToCR(255, 255, 255)
-  const bgPenIdx = objIdx++
-  const bgBrushIdx = objIdx++
-  draw.push(
-    recCreatePen(bgPenIdx, 1, whiteCr),
-    recSelectObj(bgPenIdx),
-    recCreateBrush(bgBrushIdx, whiteCr),
-    recSelectObj(bgBrushIdx),
-    recPolygon(
-      [[0, 0], [Math.round(w), 0], [Math.round(w), Math.round(h)], [0, Math.round(h)], [0, 0]] as Pt[],
-      0, 0, Math.round(w), Math.round(h),
-    ),
-    recDeleteObj(bgBrushIdx),
-    recDeleteObj(bgPenIdx),
-  )
-
   for (const cmd of allCmds) {
     const hasFill = cmd.fill && cmd.fill !== 'none' && cmd.fillOpacity > 0
     const hasStroke = cmd.stroke && cmd.stroke !== 'none' && cmd.strokeOpacity > 0

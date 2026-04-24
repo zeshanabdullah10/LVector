@@ -38,8 +38,7 @@ export function renderEmfToCanvas(emf: Uint8Array, canvas: HTMLCanvasElement) {
   canvas.width = devW
   canvas.height = devH
 
-  ctx.fillStyle = '#ffffff'
-  ctx.fillRect(0, 0, devW, devH)
+  ctx.clearRect(0, 0, devW, devH)
 
   const pens = new Map<number, GdiPen>()
   const brushes = new Map<number, GdiBrush>()
